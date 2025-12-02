@@ -1105,7 +1105,28 @@
                 values.
               </p>
             </div>
-
+            <script
+              type="text/javascript"
+              src="https://ssl.gstatic.com/trends_nrtr/4284_RC01/embed_loader.js"
+            ></script>
+            <script type="text/javascript">
+              trends.embed.renderExploreWidget(
+                "TIMESERIES",
+                {
+                  comparisonItem: [
+                    { keyword: "AI", geo: "US", time: "today 5-y" },
+                    { keyword: "AI safety", geo: "US", time: "today 5-y" },
+                  ],
+                  category: 0,
+                  property: "",
+                },
+                {
+                  exploreQuery:
+                    "date=today%205-y&geo=US&q=AI,AI%20safety&hl=en",
+                  guestPath: "https://trends.google.com:443/trends/embed/",
+                }
+              );
+            </script>
             <!-- Placeholder for Tech vs Policy Chart -->
             <div
               id="chart-attention"
