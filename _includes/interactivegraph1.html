@@ -39,6 +39,9 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+  {% include SideChart.js %}
+</script>
+<script>
   // Configuration
   const width = 1000;
   const height = 1200;
@@ -50,21 +53,23 @@
   const svg = d3.select("#timeline-viz");
   const tooltip = d3.select("#timeline-tooltip");
 
-  // Color schemes - More distinct colors
+  // Color schemes - High-contrast D3 Category10 variant
+  // Left Side (Tech Trends) - Cool & Distinct Tones
   const techColors = {
-    chatgpt: "#2196F3", // Bright blue
-    claude: "#9C27B0", // Purple
-    gemini: "#00BCD4", // Cyan
-    ai: "#4CAF50", // Green
-    deepseek: "#FF9800", // Orange
+    chatgpt: "#1f77b4", // Strong Blue
+    claude: "#9467bd", // Rich Purple
+    gemini: "#00bcd4", // Cyan/Turquoise
+    ai: "#2ca02c", // Forest Green
+    deepseek: "#8c564b", // Brown/Copper
   };
 
+  // Right Side (Governance Trends) - Warm & Distinct Tones
   const govColors = {
-    "ai safety": "#F44336", // Red
-    "ai privacy": "#E91E63", // Pink
-    "ai ethics": "#FF5722", // Deep orange
-    "ai bias": "#795548", // Brown
-    "ai trust": "#9E9E9E", // Grey
+    "ai safety": "#d62728", // Bright Red
+    "ai privacy": "#ff7f0e", // Safety Orange
+    "ai ethics": "#e377c2", // Hot Pink
+    "ai bias": "#bcbd22", // Olive/Lime
+    "ai trust": "#17becf", // Teal-Blue
   };
 
   // Parse CSV data helper
@@ -75,14 +80,78 @@
   }
 
   // Load timeline events from timelineData.js
-  const basePath = "{{ site.baseurl }}" || "";
+  const basePath = "{{ site.baseurl }}";
   const timelinePath = basePath + "/data/timelineData.js";
+  const techCsvPath = basePath + "/data/attention_trends_US_tech.csv";
+  const govCsvPath = basePath + "/data/attention_trends_US_governance.csv";
 
   console.log("Loading timeline events from:", timelinePath);
+  console.log("Loading tech trends from:", techCsvPath);
+  console.log("Loading governance trends from:", govCsvPath);
 
-  fetch(timelinePath)
-    .then((response) => response.text())
-    .then((jsText) => {
+  // Load all data sources in parallel
+  Promise.all([
+    fetch(timelinePath).then((response) => response.text()),
+    d3.text(techCsvPath),  // Load as text to handle Google Trends metadata
+    d3.text(govCsvPath),   // Load as text to handle Google Trends metadata
+  ])
+    .then(([jsText, techText, govText]) => {
+      console.log("All data loaded successfully");
+
+      // Helper function to remove Google Trends metadata lines
+      function cleanCSV(text) {
+        const lines = text.split('\n');
+        // Find the line that starts with "Week" (the actual header)
+        const headerIndex = lines.findIndex(l => l.startsWith('Week'));
+        if (headerIndex === -1) {
+          console.error("Could not find 'Week' header in CSV");
+          return [];
+        }
+        // Parse the cleaned CSV starting from the header line
+        return d3.csvParse(lines.slice(headerIndex).join('\n'));
+      }
+
+      // Clean and parse CSV data
+      const techData = cleanCSV(techText);
+      const govData = cleanCSV(govText);
+
+      console.log("Tech CSV rows loaded:", techData.length);
+      console.log("Gov CSV rows loaded:", govData.length);
+
+      // Process CSV data
+      const techColumns = ["claude", "ai", "chatgpt", "gemini", "deepseek"];
+      const govColumns = [
+        "ai safety",
+        "ai privacy",
+        "ai ethics",
+        "ai bias",
+        "ai trust",
+      ];
+
+      // Parse tech data
+      const parsedTechData = techData.map((row) => ({
+        date: new Date(row.Week),
+        claude: parseValue(row["claude: (United States)"]),
+        ai: parseValue(row["ai: (United States)"]),
+        chatgpt: parseValue(row["chatgpt: (United States)"]),
+        gemini: parseValue(row["gemini: (United States)"]),
+        deepseek: parseValue(row["deepseek: (United States)"]),
+      }));
+
+      // Parse governance data
+      const parsedGovData = govData.map((row) => ({
+        date: new Date(row.Week),
+        "ai safety": parseValue(row["ai safety: (United States)"]),
+        "ai privacy": parseValue(row["ai privacy: (United States)"]),
+        "ai ethics": parseValue(row["ai ethics: (United States)"]),
+        "ai bias": parseValue(row["ai bias: (United States)"]),
+        "ai trust": parseValue(row["ai trust: (United States)"]),
+      }));
+
+      console.log("Parsed tech data:", parsedTechData.length, "rows");
+      console.log("Parsed gov data:", parsedGovData.length, "rows");
+
+      // Parse timeline events from the JS text
       // Extract events using regex
       const eventsMatch = jsText.match(
         /events:\s*\[([\s\S]*?)\n\s*\]\s*,?\s*\};?/
@@ -173,20 +242,32 @@
           events.slice(0, 5).map((e) => e.text.headline)
         );
       }
-      return events;
-    })
-    .then((timelineEvents) => {
-      // Now render the timeline with events
-      renderTimeline(timelineEvents);
+
+      // Now render the timeline with events and CSV data
+      renderTimeline(
+        events,
+        parsedTechData,
+        parsedGovData,
+        techColumns,
+        govColumns
+      );
     })
     .catch((error) => {
-      console.error("Error loading timeline:", error);
+      console.error("Error loading data:", error);
       // Fallback to empty timeline
-      renderTimeline([]);
+      renderTimeline([], [], [], [], []);
     });
 
-  function renderTimeline(timelineEvents) {
+  function renderTimeline(
+    timelineEvents,
+    techData,
+    govData,
+    techColumns,
+    govColumns
+  ) {
     console.log("Rendering timeline with", timelineEvents.length, "events");
+    console.log("Tech data points:", techData.length);
+    console.log("Gov data points:", govData.length);
 
     // Category colors - distinct and vibrant
     const categoryColors = {
@@ -214,6 +295,48 @@
       .scaleTime()
       .domain(originalDomain)
       .range([margin.top + 80, height - margin.bottom - 60]);
+
+    // Initialize side charts (left: tech, right: governance)
+    let leftChart = null;
+    let rightChart = null;
+
+    if (techData && techData.length > 0 && typeof SideChart !== "undefined") {
+      leftChart = new SideChart({
+        container: svg,
+        data: techData,
+        columns: techColumns,
+        options: {
+          width: leftChartWidth,
+          height: height,
+          side: "left",
+          colors: techColors,
+          initialYScale: yScale,
+          xPosition: timelineX,
+          yTop: margin.top + 80,
+          yBottom: height - margin.bottom - 60,
+        },
+      });
+      console.log("Left chart (tech) initialized");
+    }
+
+    if (govData && govData.length > 0 && typeof SideChart !== "undefined") {
+      rightChart = new SideChart({
+        container: svg,
+        data: govData,
+        columns: govColumns,
+        options: {
+          width: rightChartWidth,
+          height: height,
+          side: "right",
+          colors: govColors,
+          initialYScale: yScale,
+          xPosition: timelineX,
+          yTop: margin.top + 80,
+          yBottom: height - margin.bottom - 60,
+        },
+      });
+      console.log("Right chart (governance) initialized");
+    }
 
     // Add category filters at the top
     const categoryItems = [
@@ -662,6 +785,14 @@
       drawTimelineAxis();
       renderEventDots();
 
+      // Update side charts with new scale
+      if (leftChart) {
+        leftChart.update(yScale);
+      }
+      if (rightChart) {
+        rightChart.update(yScale);
+      }
+
       // Make sure event dots stay on top
       eventDotsGroup.raise();
       centerShield.raise();
@@ -678,6 +809,14 @@
         yScale.domain(originalDomain);
         drawTimelineAxis();
         renderEventDots();
+
+        // Reset side charts
+        if (leftChart) {
+          leftChart.update(yScale);
+        }
+        if (rightChart) {
+          rightChart.update(yScale);
+        }
 
         // Visual feedback
         d3.select(this)
