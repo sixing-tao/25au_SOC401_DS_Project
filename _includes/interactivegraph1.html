@@ -1,0 +1,718 @@
+<!-- Interactive Timeline Visualization Component -->
+<div
+  id="timeline-container"
+  style="width: 100%; display: flex; justify-content: center; margin: 2rem 0"
+>
+  <svg id="timeline-viz" width="1000" height="1200"></svg>
+</div>
+<div
+  id="timeline-tooltip"
+  style="
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    max-width: 300px;
+    line-height: 1.5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  "
+></div>
+
+<style>
+  .brush .selection {
+    fill: #2d7a5a;
+    fill-opacity: 0.3;
+    stroke: #2d7a5a;
+    stroke-width: 2;
+  }
+  .brush .handle {
+    fill: #2d7a5a;
+    stroke: white;
+    stroke-width: 1.5;
+  }
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+  // Configuration
+  const width = 1000;
+  const height = 1200;
+  const margin = { top: 40, right: 50, bottom: 40, left: 50 };
+  const timelineX = width / 2;
+  const leftChartWidth = 400;
+  const rightChartWidth = 400;
+
+  const svg = d3.select("#timeline-viz");
+  const tooltip = d3.select("#timeline-tooltip");
+
+  // Color schemes - More distinct colors
+  const techColors = {
+    chatgpt: "#2196F3", // Bright blue
+    claude: "#9C27B0", // Purple
+    gemini: "#00BCD4", // Cyan
+    ai: "#4CAF50", // Green
+    deepseek: "#FF9800", // Orange
+  };
+
+  const govColors = {
+    "ai safety": "#F44336", // Red
+    "ai privacy": "#E91E63", // Pink
+    "ai ethics": "#FF5722", // Deep orange
+    "ai bias": "#795548", // Brown
+    "ai trust": "#9E9E9E", // Grey
+  };
+
+  // Parse CSV data helper
+  function parseValue(val) {
+    if (val === "<1" || val === "< 1") return 0.5;
+    const num = parseFloat(val);
+    return isNaN(num) ? 0 : num;
+  }
+
+  // Load timeline events from timelineData.js
+  const basePath = "{{ site.baseurl }}" || "";
+  const timelinePath = basePath + "/data/timelineData.js";
+
+  console.log("Loading timeline events from:", timelinePath);
+
+  fetch(timelinePath)
+    .then((response) => response.text())
+    .then((jsText) => {
+      // Extract events using regex
+      const eventsMatch = jsText.match(
+        /events:\s*\[([\s\S]*?)\n\s*\]\s*,?\s*\};?/
+      );
+
+      if (!eventsMatch) {
+        console.error("Could not find events array in timeline data");
+        return [];
+      }
+
+      // Parse events manually with improved regex
+      const eventsText = eventsMatch[1];
+      const events = [];
+
+      // Split events more reliably - look for start_date patterns
+      const eventBlocks = eventsText.split(/(?=\s*\{\s*start_date)/);
+
+      for (const eventBlock of eventBlocks) {
+        if (!eventBlock.trim() || !eventBlock.includes("start_date")) continue;
+
+        // Extract date
+        const yearMatch = eventBlock.match(/year:\s*"(\d+)"/);
+        const monthMatch = eventBlock.match(/month:\s*"(\d+)"/);
+        const dayMatch = eventBlock.match(/day:\s*"(\d+)"/);
+
+        if (!yearMatch) continue;
+
+        // Extract headline - look for the LAST quoted string in createLink (the title)
+        let headline = "Event";
+        const createLinkMatch = eventBlock.match(
+          /headline:\s*createLink\([^)]*,\s*"([^"]+)"\s*\)/
+        );
+        if (createLinkMatch) {
+          headline = createLinkMatch[1];
+        } else {
+          const simpleHeadlineMatch = eventBlock.match(/headline:\s*"([^"]+)"/);
+          if (simpleHeadlineMatch) {
+            headline = simpleHeadlineMatch[1];
+          }
+        }
+
+        // Extract text description - handle quotes and HTML better
+        let description = "";
+        // Match text field more flexibly, allowing for escaped quotes
+        const textMatch = eventBlock.match(
+          /text:\s*['"]<p>([\s\S]*?)<\/p>['"]/
+        );
+        if (textMatch) {
+          // Clean up the description - remove escaped quotes and extra spaces
+          description = textMatch[1]
+            .replace(/\\"/g, '"') // Replace escaped quotes
+            .replace(/\s+/g, " ") // Normalize whitespace
+            .trim();
+        }
+
+        // Extract category
+        let category = "OTHER";
+        const categoryMatch = eventBlock.match(/category:\s*CATEGORIES\.(\w+)/);
+        if (categoryMatch) {
+          category = categoryMatch[1];
+        }
+
+        console.log(
+          `Event ${
+            yearMatch[1]
+          }: "${headline}" [${category}] - ${description.substring(0, 50)}...`
+        );
+
+        events.push({
+          start_date: {
+            year: yearMatch[1],
+            month: monthMatch ? monthMatch[1] : "01",
+            day: dayMatch ? dayMatch[1] : "01",
+          },
+          text: {
+            headline: headline,
+            text: description,
+          },
+          category: category,
+        });
+      }
+
+      console.log("Parsed timeline events:", events.length);
+      if (events.length > 0) {
+        console.log("Sample event:", events[0]);
+        console.log(
+          "Sample headlines:",
+          events.slice(0, 5).map((e) => e.text.headline)
+        );
+      }
+      return events;
+    })
+    .then((timelineEvents) => {
+      // Now render the timeline with events
+      renderTimeline(timelineEvents);
+    })
+    .catch((error) => {
+      console.error("Error loading timeline:", error);
+      // Fallback to empty timeline
+      renderTimeline([]);
+    });
+
+  function renderTimeline(timelineEvents) {
+    console.log("Rendering timeline with", timelineEvents.length, "events");
+
+    // Category colors - distinct and vibrant
+    const categoryColors = {
+      MODEL_RELEASE: "#FF6B6B", // Red - AI model releases
+      CULTURE: "#4ECDC4", // Teal - Cultural moments
+      BUSINESS: "#FFD93D", // Yellow - Business events
+      RESEARCH: "#6C5CE7", // Purple - Research breakthroughs
+      POLICY: "#2D7A5A", // Dark green - Policy/governance
+      OTHER: "#A8A8A8", // Gray - Other/uncategorized
+    };
+
+    // Active categories state - all active by default
+    const activeCategories = new Set([
+      "MODEL_RELEASE",
+      "CULTURE",
+      "BUSINESS",
+      "RESEARCH",
+      "POLICY",
+      "OTHER",
+    ]);
+
+    // Set up scales with original domain stored
+    const originalDomain = [new Date("2020-10-25"), new Date("2025-12-31")];
+    const yScale = d3
+      .scaleTime()
+      .domain(originalDomain)
+      .range([margin.top + 80, height - margin.bottom - 60]);
+
+    // Add category filters at the top
+    const categoryItems = [
+      { category: "MODEL_RELEASE", label: "Model Release" },
+      { category: "RESEARCH", label: "Research" },
+      { category: "BUSINESS", label: "Business" },
+      { category: "CULTURE", label: "Culture" },
+      { category: "POLICY", label: "Policy" },
+    ];
+
+    const filterY = 50;
+    const filterStartX = (width - categoryItems.length * 140) / 2;
+
+    // Function to update event visibility (will be defined after eventDotsGroup is created)
+    let updateEventVisibility;
+
+    // Draw category filter buttons
+    categoryItems.forEach((item, i) => {
+      const x = filterStartX + i * 140;
+      const color = categoryColors[item.category];
+
+      // Create group for each filter button
+      const filterGroup = svg
+        .append("g")
+        .attr("class", "category-filter")
+        .attr("data-category", item.category)
+        .style("cursor", "pointer")
+        .on("click", function () {
+          if (activeCategories.has(item.category)) {
+            activeCategories.delete(item.category);
+          } else {
+            activeCategories.add(item.category);
+          }
+
+          // Update button appearance
+          const isActive = activeCategories.has(item.category);
+          d3.select(this)
+            .select("rect")
+            .attr("fill", isActive ? color : "#f0f0f0")
+            .attr("opacity", isActive ? 0.2 : 0.05);
+
+          d3.select(this)
+            .select("circle")
+            .attr("fill", isActive ? color : "#ccc")
+            .attr("opacity", isActive ? 1 : 0.3);
+
+          d3.select(this)
+            .select("text")
+            .attr("fill", isActive ? "#333" : "#999");
+
+          // Update event dots visibility
+          updateEventVisibility();
+        });
+
+      // Background rect
+      filterGroup
+        .append("rect")
+        .attr("x", x)
+        .attr("y", filterY - 15)
+        .attr("width", 130)
+        .attr("height", 30)
+        .attr("rx", 15)
+        .attr("fill", color)
+        .attr("opacity", 0.2)
+        .style("transition", "all 0.3s");
+
+      // Colored circle
+      filterGroup
+        .append("circle")
+        .attr("cx", x + 15)
+        .attr("cy", filterY)
+        .attr("r", 6)
+        .attr("fill", color)
+        .attr("stroke", "white")
+        .attr("stroke-width", 2);
+
+      // Label text
+      filterGroup
+        .append("text")
+        .attr("x", x + 28)
+        .attr("y", filterY + 4)
+        .style("font-size", "12px")
+        .style("fill", "#333")
+        .style("font-weight", "500")
+        .text(item.label);
+    });
+
+    // Timeline axis group
+    const timelineAxisGroup = svg
+      .append("g")
+      .attr("class", "timeline-axis-group");
+
+    // Function to draw/update timeline axis with dynamic detail level
+    function drawTimelineAxis() {
+      timelineAxisGroup.selectAll("*").remove();
+
+      // Main timeline line
+      timelineAxisGroup
+        .append("line")
+        .attr("x1", timelineX)
+        .attr("x2", timelineX)
+        .attr("y1", margin.top + 80)
+        .attr("y2", height - margin.bottom - 60)
+        .attr("stroke", "#333")
+        .attr("stroke-width", 3);
+
+      // Calculate time span in years
+      const domain = yScale.domain();
+      const startDate = domain[0];
+      const endDate = domain[1];
+      const timeSpanYears =
+        (endDate - startDate) / (365.25 * 24 * 60 * 60 * 1000);
+
+      console.log("Time span:", timeSpanYears, "years");
+
+      // Dynamic detail level based on zoom
+      if (timeSpanYears > 5) {
+        // Wide view: Show years only
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+
+        for (let year = startYear; year <= endYear; year++) {
+          const y = yScale(new Date(year, 0, 1));
+          if (y >= margin.top + 80 && y <= height - margin.bottom - 60) {
+            timelineAxisGroup
+              .append("line")
+              .attr("x1", timelineX - 10)
+              .attr("x2", timelineX + 10)
+              .attr("y1", y)
+              .attr("y2", y)
+              .attr("stroke", "#333")
+              .attr("stroke-width", 2);
+            timelineAxisGroup
+              .append("text")
+              .attr("x", timelineX - 30)
+              .attr("y", y + 4)
+              .style("font-size", "12px")
+              .style("fill", "#666")
+              .attr("text-anchor", "end")
+              .text(year);
+          }
+        }
+      } else if (timeSpanYears > 2) {
+        // Medium zoom: Show years and quarters
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+
+        for (let year = startYear; year <= endYear; year++) {
+          // Year marker
+          const yearY = yScale(new Date(year, 0, 1));
+          if (
+            yearY >= margin.top + 80 &&
+            yearY <= height - margin.bottom - 60
+          ) {
+            timelineAxisGroup
+              .append("line")
+              .attr("x1", timelineX - 15)
+              .attr("x2", timelineX + 15)
+              .attr("y1", yearY)
+              .attr("y2", yearY)
+              .attr("stroke", "#333")
+              .attr("stroke-width", 2.5);
+            timelineAxisGroup
+              .append("text")
+              .attr("x", timelineX - 35)
+              .attr("y", yearY + 4)
+              .style("font-size", "13px")
+              .style("fill", "#333")
+              .style("font-weight", "600")
+              .attr("text-anchor", "end")
+              .text(year);
+          }
+
+          // Quarter markers
+          for (let quarter = 0; quarter < 4; quarter++) {
+            const month = quarter * 3;
+            if (month === 0) continue; // Skip Q1 (already shown as year)
+            const qY = yScale(new Date(year, month, 1));
+            if (qY >= margin.top + 80 && qY <= height - margin.bottom - 60) {
+              timelineAxisGroup
+                .append("line")
+                .attr("x1", timelineX - 8)
+                .attr("x2", timelineX + 8)
+                .attr("y1", qY)
+                .attr("y2", qY)
+                .attr("stroke", "#999")
+                .attr("stroke-width", 1.5);
+              timelineAxisGroup
+                .append("text")
+                .attr("x", timelineX - 25)
+                .attr("y", qY + 3)
+                .style("font-size", "10px")
+                .style("fill", "#999")
+                .attr("text-anchor", "end")
+                .text(`Q${quarter + 1}`);
+            }
+          }
+        }
+      } else if (timeSpanYears > 0.5) {
+        // High zoom: Show months
+        let currentDate = new Date(startDate);
+        currentDate.setDate(1);
+
+        while (currentDate <= endDate) {
+          const y = yScale(currentDate);
+          if (y >= margin.top + 80 && y <= height - margin.bottom - 60) {
+            const month = currentDate.getMonth();
+            const year = currentDate.getFullYear();
+            const isJanuary = month === 0;
+
+            timelineAxisGroup
+              .append("line")
+              .attr("x1", timelineX - (isJanuary ? 15 : 8))
+              .attr("x2", timelineX + (isJanuary ? 15 : 8))
+              .attr("y1", y)
+              .attr("y2", y)
+              .attr("stroke", isJanuary ? "#333" : "#999")
+              .attr("stroke-width", isJanuary ? 2.5 : 1.5);
+
+            const monthNames = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ];
+            timelineAxisGroup
+              .append("text")
+              .attr("x", timelineX - (isJanuary ? 35 : 25))
+              .attr("y", y + 3)
+              .style("font-size", isJanuary ? "12px" : "10px")
+              .style("fill", isJanuary ? "#333" : "#999")
+              .style("font-weight", isJanuary ? "600" : "400")
+              .attr("text-anchor", "end")
+              .text(
+                isJanuary ? `${monthNames[month]} ${year}` : monthNames[month]
+              );
+          }
+
+          currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+      } else {
+        // Very high zoom: Show weeks
+        let currentDate = new Date(startDate);
+        // Round to nearest Monday
+        const dayOfWeek = currentDate.getDay();
+        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        currentDate.setDate(currentDate.getDate() - daysToMonday);
+
+        let weekCount = 0;
+        while (currentDate <= endDate) {
+          const y = yScale(currentDate);
+          if (y >= margin.top + 80 && y <= height - margin.bottom - 60) {
+            const isMonthStart = currentDate.getDate() <= 7;
+
+            timelineAxisGroup
+              .append("line")
+              .attr("x1", timelineX - (isMonthStart ? 12 : 6))
+              .attr("x2", timelineX + (isMonthStart ? 12 : 6))
+              .attr("y1", y)
+              .attr("y2", y)
+              .attr("stroke", isMonthStart ? "#666" : "#ccc")
+              .attr("stroke-width", isMonthStart ? 2 : 1);
+
+            if (isMonthStart || weekCount % 2 === 0) {
+              const monthNames = [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+              ];
+              const month = currentDate.getMonth();
+              const day = currentDate.getDate();
+
+              timelineAxisGroup
+                .append("text")
+                .attr("x", timelineX - 20)
+                .attr("y", y + 3)
+                .style("font-size", "9px")
+                .style("fill", isMonthStart ? "#666" : "#999")
+                .attr("text-anchor", "end")
+                .text(isMonthStart ? `${monthNames[month]} ${day}` : `${day}`);
+            }
+          }
+
+          currentDate.setDate(currentDate.getDate() + 7);
+          weekCount++;
+        }
+      }
+    }
+
+    drawTimelineAxis();
+
+    // Store event data for re-rendering
+    const eventDataList = [];
+
+    // Add event dots on timeline
+    console.log("Adding event dots, total events:", timelineEvents.length);
+    const eventDotsGroup = svg.append("g").attr("class", "event-dots-group");
+
+    // Define updateEventVisibility function now that eventDotsGroup exists
+    updateEventVisibility = function () {
+      eventDotsGroup.selectAll(".event-dot").each(function (d) {
+        const dot = d3.select(this);
+        const category = dot.attr("data-category");
+        const isActive = activeCategories.has(category);
+        dot.style("display", isActive ? "block" : "none");
+      });
+    };
+
+    function renderEventDots() {
+      eventDotsGroup.selectAll("*").remove();
+
+      if (!Array.isArray(timelineEvents) || timelineEvents.length === 0) {
+        console.log("No timeline events to display");
+        return;
+      }
+
+      let eventCount = 0;
+      timelineEvents.forEach((event, index) => {
+        const startDate = event.start_date;
+        if (!startDate || !startDate.year) return;
+
+        const eventDate = new Date(
+          parseInt(startDate.year),
+          startDate.month ? parseInt(startDate.month) - 1 : 0,
+          startDate.day ? parseInt(startDate.day) : 1
+        );
+
+        const y = yScale(eventDate);
+
+        // Skip if out of visible range
+        if (y < margin.top + 80 || y > height - margin.bottom - 60) return;
+
+        const headline = event.text?.headline || "Event";
+        const text = event.text?.text || "";
+        const category = event.category || "OTHER";
+        const color = categoryColors[category] || categoryColors["OTHER"];
+
+        // Clean HTML from text
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = text;
+        const cleanText = tempDiv.textContent || tempDiv.innerText || text;
+
+        // Category label for display
+        const categoryLabel = category.replace(/_/g, " ");
+
+        eventDotsGroup
+          .append("circle")
+          .attr("class", "event-dot")
+          .attr("data-category", category)
+          .attr("cx", timelineX)
+          .attr("cy", y)
+          .attr("r", 7)
+          .attr("fill", color)
+          .attr("stroke", "white")
+          .attr("stroke-width", 2.5)
+          .style("cursor", "pointer")
+          .style("display", activeCategories.has(category) ? "block" : "none")
+          .on("mouseover", function (e) {
+            d3.select(this).attr("r", 10);
+            const dateStr = `${startDate.year}-${(
+              startDate.month || "01"
+            ).padStart(2, "0")}-${(startDate.day || "01").padStart(2, "0")}`;
+
+            tooltip
+              .style("opacity", 1)
+              .html(
+                `<div style="font-size: 15px; font-weight: bold; margin-bottom: 6px; color: #fff;">${headline}</div><div style="color: #bbb; font-size: 11px; margin-bottom: 4px;">${dateStr}</div><div style="color: ${color}; font-size: 10px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">${categoryLabel}</div><div style="line-height: 1.4;">${cleanText}</div>`
+              )
+              .style("left", e.pageX + 15 + "px")
+              .style("top", e.pageY - 20 + "px");
+          })
+          .on("mouseout", function () {
+            d3.select(this).attr("r", 7);
+            tooltip.style("opacity", 0);
+          });
+
+        eventCount++;
+      });
+
+      console.log("Successfully rendered", eventCount, "event dots");
+    }
+
+    renderEventDots();
+
+    // Add brush for zooming - full width with center area protected
+    const brush = d3
+      .brushY()
+      .extent([
+        [margin.left, margin.top + 80],
+        [width - margin.right, height - margin.bottom - 60],
+      ])
+      .on("end", brushed);
+
+    const brushGroup = svg.append("g").attr("class", "brush").call(brush);
+
+    // Add a transparent shield over the center area to block brush but allow event interactions
+    const centerShield = svg
+      .append("rect")
+      .attr("x", timelineX - 80)
+      .attr("y", margin.top + 80)
+      .attr("width", 160)
+      .attr("height", height - margin.bottom - 60 - margin.top - 80)
+      .attr("fill", "transparent")
+      .style("pointer-events", "all")
+      .on("mousedown", function (e) {
+        // Prevent brush from starting in this area
+        e.stopPropagation();
+      });
+
+    // Move event dots group to the top so they receive hover events
+    eventDotsGroup.raise();
+
+    function brushed(event) {
+      const selection = event.selection;
+      if (!selection) return;
+
+      // Get the date range from the brush selection
+      const [y0, y1] = selection;
+      const date0 = yScale.invert(y0);
+      const date1 = yScale.invert(y1);
+
+      // Update the scale domain
+      yScale.domain([date0, date1]);
+
+      // Clear the brush
+      brushGroup.call(brush.move, null);
+
+      // Re-render
+      drawTimelineAxis();
+      renderEventDots();
+
+      // Make sure event dots stay on top
+      eventDotsGroup.raise();
+      centerShield.raise();
+      eventDotsGroup.raise();
+    }
+
+    // Add reset button at the bottom
+    const resetButton = svg
+      .append("g")
+      .attr("class", "reset-button")
+      .style("cursor", "pointer")
+      .on("click", function () {
+        // Reset to original domain
+        yScale.domain(originalDomain);
+        drawTimelineAxis();
+        renderEventDots();
+
+        // Visual feedback
+        d3.select(this)
+          .select("rect")
+          .transition()
+          .duration(200)
+          .attr("fill", "#2d7a5a")
+          .transition()
+          .duration(200)
+          .attr("fill", "#1a4d3e");
+      });
+
+    const buttonY = height - 30;
+    const buttonX = width / 2 - 60;
+
+    resetButton
+      .append("rect")
+      .attr("x", buttonX)
+      .attr("y", buttonY)
+      .attr("width", 120)
+      .attr("height", 28)
+      .attr("rx", 14)
+      .attr("fill", "#1a4d3e")
+      .attr("opacity", 0.9);
+
+    resetButton
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", buttonY + 18)
+      .attr("text-anchor", "middle")
+      .style("fill", "white")
+      .style("font-size", "12px")
+      .style("font-weight", "600")
+      .text("Reset Timeframe");
+
+    console.log("Timeline rendering complete");
+  }
+</script>

@@ -1,0 +1,1613 @@
+---
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Governing AI Trust: Why Transparency Needs Law, Not Just Tech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ==========================================================================
+       CSS Variables & Reset
+       ========================================================================== */
+      :root {
+        --color-primary: #1a4d3e;
+        --color-primary-dark: #0d3328;
+        --color-accent: #2d7a5a;
+        --color-accent-light: #3d9970;
+        --color-bg: #f5f7f6;
+        --color-card: #ffffff;
+        --color-text: #1a3330;
+        --color-text-muted: #4a6a63;
+        --color-border: #d4ddd9;
+        --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1),
+          0 2px 4px -2px rgba(15, 23, 42, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1),
+          0 4px 6px -4px rgba(15, 23, 42, 0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1),
+          0 8px 10px -6px rgba(15, 23, 42, 0.1);
+        --radius-sm: 0.5rem;
+        --radius-md: 0.75rem;
+        --radius-lg: 1rem;
+        --radius-xl: 1.5rem;
+        --max-width: 72rem;
+        --nav-height: 4rem;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: calc(var(--nav-height) + 1.5rem);
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--color-text);
+        background: var(--color-bg);
+      }
+
+      /* ==========================================================================
+       Fixed Navigation
+       ========================================================================== */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--nav-height);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--color-border);
+        z-index: 1000;
+      }
+
+      .nav-inner {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .nav-logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--color-primary-dark);
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: none;
+        list-style: none;
+        gap: 0.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .nav-links {
+          display: flex;
+        }
+      }
+
+      .nav-links a {
+        display: block;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .nav-links a:hover {
+        background: rgba(26, 77, 62, 0.08);
+        color: var(--color-primary);
+      }
+
+      /* ==========================================================================
+       Layout Utilities
+       ========================================================================== */
+      .container {
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      .section {
+        padding: 4rem 0;
+      }
+
+      .section-alt {
+        background: var(--color-card);
+      }
+
+      .section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--color-text);
+      }
+
+      .section-subtitle {
+        font-size: 1rem;
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+        max-width: 40rem;
+      }
+
+      .subsection {
+        margin-top: 2.5rem;
+      }
+
+      .subsection-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--color-text);
+      }
+
+      /* ==========================================================================
+       Hero Section
+       ========================================================================== */
+      .hero {
+        padding-top: calc(var(--nav-height) + 3rem);
+        padding-bottom: 4rem;
+        background: linear-gradient(
+          135deg,
+          #0d2818 0%,
+          #1a4d3e 30%,
+          #2d7a5a 60%,
+          #3d9970 100%
+        );
+        color: #f8fafc;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 20% 80%,
+            rgba(61, 153, 112, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(45, 122, 90, 0.25) 0%,
+            transparent 40%
+          );
+        pointer-events: none;
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-kicker {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #a8e6cf;
+        margin-bottom: 1rem;
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+        max-width: 48rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.125rem;
+        color: #c8e6d5;
+        max-width: 36rem;
+        margin-bottom: 2rem;
+        line-height: 1.7;
+      }
+
+      .hero-author {
+        font-size: 0.9rem;
+        color: #a8e6cf;
+        margin-bottom: 2.5rem;
+      }
+
+      /* Research Question Card */
+      .rq-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(8px);
+      }
+
+      .rq-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #fbbf24;
+        margin-bottom: 0.5rem;
+      }
+
+      .rq-text {
+        font-size: 1.1rem;
+        font-weight: 500;
+        font-style: italic;
+        color: #f1f5f9;
+        line-height: 1.6;
+      }
+
+      /* Executive Summary Card */
+      .summary-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 2rem;
+      }
+
+      .summary-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #94a3b8;
+        margin-bottom: 0.75rem;
+      }
+
+      .summary-text {
+        color: #e2e8f0;
+        line-height: 1.7;
+      }
+
+      /* CTA Buttons */
+      .hero-ctas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 999px;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+      }
+
+      .btn-primary {
+        background: var(--color-accent);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(45, 122, 90, 0.4);
+      }
+
+      .btn-primary:hover {
+        background: var(--color-accent-light);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* ==========================================================================
+       Cards
+       ========================================================================== */
+      .card {
+        background: var(--color-card);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--color-border);
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--color-text);
+      }
+
+      .card-text {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+      }
+
+      /* Card Grid */
+      .card-grid {
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 640px) {
+        .card-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .card-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .card-grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .card-grid-5 {
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 640px) {
+        .card-grid-4 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .card-grid-5 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .card-grid-4 {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .card-grid-5 {
+          grid-template-columns: repeat(5, 1fr);
+        }
+      }
+
+      /* Stakeholder Cards */
+      .stakeholder-card {
+        background: var(--color-card);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border);
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+
+      .stakeholder-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+      }
+
+      .stakeholder-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+        font-size: 1.25rem;
+      }
+
+      .stakeholder-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: var(--color-text);
+      }
+
+      .stakeholder-desc {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        line-height: 1.5;
+      }
+
+      /* ==========================================================================
+       Data & Analysis Section
+       ========================================================================== */
+      .chart-section {
+        margin-bottom: 3rem;
+      }
+
+      .chart-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .chart-card {
+        background: #ffffff;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--color-border);
+      }
+
+      .chart-header {
+        margin-bottom: 1rem;
+      }
+
+      .chart-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .chart-caption {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+      }
+
+      .chart-container {
+        min-height: 400px;
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: var(--radius-md);
+        display: flex;
+      }
+
+      .chart-takeaway {
+        margin-top: 1.5rem;
+        padding: 1.25rem;
+        background: rgba(26, 77, 62, 0.08);
+        border-left: 3px solid var(--color-primary);
+        border-radius: var(--radius-sm);
+      }
+
+      .chart-takeaway h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        margin-bottom: 0.75rem;
+      }
+
+      .chart-takeaway p {
+        font-size: 0.9rem;
+        color: var(--color-text);
+        line-height: 1.7;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 0.9rem;
+        border: 1px dashed #334155;
+      }
+
+      /* ==========================================================================
+       Policy Options Section
+       ========================================================================== */
+      .policy-options {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 768px) {
+        .policy-options {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .policy-card {
+        background: var(--color-card);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--color-border);
+        position: relative;
+      }
+
+      .policy-desc {
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        margin-bottom: 1.25rem;
+        line-height: 1.6;
+      }
+
+      .policy-card.recommended {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(26, 77, 62, 0.15), var(--shadow-lg);
+      }
+
+      .policy-card.recommended::before {
+        content: "★ Recommended";
+        position: absolute;
+        top: -0.75rem;
+        left: 1rem;
+        background: var(--color-primary);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .policy-number {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-text-muted);
+        margin-bottom: 0.5rem;
+      }
+
+      .policy-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--color-text);
+      }
+
+      .policy-pros,
+      .policy-risks {
+        margin-bottom: 1rem;
+      }
+
+      .policy-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+
+      .policy-label.pros {
+        color: #16a34a;
+      }
+
+      .policy-label.risks {
+        color: #dc2626;
+      }
+
+      .policy-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .policy-list li {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        padding-left: 1rem;
+        position: relative;
+        margin-bottom: 0.35rem;
+      }
+
+      .policy-list li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--color-text-muted);
+      }
+
+      /* Recommendation Box */
+      .recommendation-box {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-left: 4px solid var(--color-primary);
+        border-radius: var(--radius-md);
+        padding: 1.5rem 1.75rem;
+        margin-top: 2.5rem;
+      }
+
+      .recommendation-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-primary);
+        margin-bottom: 0.75rem;
+      }
+
+      .recommendation-text {
+        font-size: 1rem;
+        color: var(--color-text);
+        line-height: 1.7;
+      }
+
+      /* ==========================================================================
+       Methods Section
+       ========================================================================== */
+      .methods-grid {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 768px) {
+        .methods-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .methods-column h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--color-text);
+      }
+
+      .methods-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .methods-list li {
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .methods-list li:last-child {
+        border-bottom: none;
+      }
+
+      /* ==========================================================================
+       References & About
+       ========================================================================== */
+      .references-list {
+        list-style: decimal;
+        padding-left: 1.5rem;
+      }
+
+      .references-list li {
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        padding: 0.5rem 0;
+        line-height: 1.6;
+      }
+
+      .about-box {
+        background: var(--color-card);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.75rem;
+        margin-top: 2.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border);
+      }
+
+      .about-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--color-text);
+      }
+
+      .about-text {
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        line-height: 1.7;
+      }
+
+      /* ==========================================================================
+       Footer
+       ========================================================================== */
+      .footer {
+        background: #0d2818;
+        color: #a8c5b5;
+        padding: 2rem 0;
+        text-align: center;
+        font-size: 0.85rem;
+      }
+
+      .footer a {
+        color: #c8e6d5;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ==========================================================================
+       Utility Classes
+       ========================================================================== */
+      .text-muted {
+        color: var(--color-text-muted);
+      }
+
+      .mt-1 {
+        margin-top: 0.5rem;
+      }
+      .mt-2 {
+        margin-top: 1rem;
+      }
+      .mt-3 {
+        margin-top: 1.5rem;
+      }
+      .mt-4 {
+        margin-top: 2rem;
+      }
+      .mb-1 {
+        margin-bottom: 0.5rem;
+      }
+      .mb-2 {
+        margin-bottom: 1rem;
+      }
+      .mb-3 {
+        margin-bottom: 1.5rem;
+      }
+      .mb-4 {
+        margin-bottom: 2rem;
+      }
+
+      /* Prose styling for longer text blocks */
+      .prose p {
+        margin-bottom: 1rem;
+        line-height: 1.7;
+      }
+
+      .prose p:last-child {
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ========================================================================
+       Fixed Navigation
+       ======================================================================== -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">AI Trust & Transparency</a>
+        <ul class="nav-links">
+          <li><a href="#hero">Overview</a></li>
+          <li><a href="#background">Background</a></li>
+          <li><a href="#data">Data & Analysis</a></li>
+          <li><a href="#policy">Policy Options</a></li>
+          <li><a href="#methods">Methods</a></li>
+          <li><a href="#references">References</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ========================================================================
+       Section 0: Hero & Research Question
+       ======================================================================== -->
+    <section id="hero" class="hero">
+      <div class="container hero-inner">
+        <span class="hero-kicker">AI, LLMs, and Public Trust</span>
+
+        <h1 class="hero-title">
+          The AI Trust Gap: Why Voluntary Transparency Isn't Enough
+        </h1>
+
+        <p class="hero-subtitle">
+          Data practices in LLM training are reshaping power, privacy, and
+          public trust. This project examines whether corporate transparency and
+          public attention are actually building trust—and what happens when
+          they don't.
+        </p>
+
+        <p class="hero-author">
+          By Sixing Tao · University of Washington · SOC 401 · 2025
+        </p>
+
+        <!-- Research Question Card -->
+        <div class="rq-card">
+          <div class="rq-label">Research Question</div>
+          <p class="rq-text">
+            How do corporate transparency efforts and government-led data
+            privacy regulations relate to public attention and trust in AI
+            technologies?
+          </p>
+        </div>
+
+        <!-- Executive Summary Card -->
+        <div class="summary-card">
+          <div class="summary-label">Executive Summary</div>
+          <p class="summary-text">
+            Public attention to AI has exploded since 2022, yet trust remains
+            flat or declining. This policy brief uses data visualizations to
+            document a critical disconnect: while AI milestones accelerate and
+            corporate transparency efforts multiply, public confidence in AI
+            systems has not improved. Our timeline shows technology advancing
+            far faster than governance responses; our trend analysis reveals
+            policy discourse consistently lagging behind technology hype; and
+            our attention-trust comparison demonstrates that voluntary corporate
+            transparency has failed to build public trust. These findings
+            suggest a
+            <strong>governance gap</strong>: if transparency is meant to build
+            trust, it likely needs to be institutionalized through
+            government-backed frameworks—not left solely to companies with
+            inherent conflicts of interest. We recommend exploring
+            institutional, regulatory approaches to AI transparency, not because
+            regulation is proven to work, but because current voluntary
+            strategies have demonstrably failed.
+          </p>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="hero-ctas">
+          <a href="#data" class="btn btn-primary">View Data & Analysis</a>
+          <a href="#policy" class="btn btn-secondary">See Policy Options</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+       Section 1: Background & Problem Statement
+       ======================================================================== -->
+    <section id="background" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">Background & Problem Statement</h2>
+        <p class="section-subtitle">
+          Understanding the landscape of AI development, data practices, and the
+          emerging trust gap.
+        </p>
+
+        <!-- 2.1 The Rise of Generative AI -->
+        <div class="subsection">
+          <h3 class="subsection-title">
+            2.1 The Rise of Generative AI and LLM Training
+          </h3>
+          <div class="prose">
+            <p>
+              Large language models (LLMs) are AI systems trained on massive
+              text datasets to generate human-like responses. Models like GPT-4,
+              Claude, and Gemini have become household names, powering
+              everything from chatbots to search engines to coding assistants.
+              But behind these capabilities lies a critical question:
+              <em>what data were they trained on?</em>
+            </p>
+            <p>
+              LLMs are typically trained on web-scale datasets that blend public
+              websites, books, academic papers, social media posts, and personal
+              communications—often without explicit consent from the original
+              creators. This blurring of boundaries raises fundamental questions
+              about ownership, privacy, and the right to control how one's data
+              is used. A person's blog post, creative writing, or professional
+              correspondence may now live inside an AI system, influencing its
+              outputs in ways that are difficult to trace or audit.
+            </p>
+            <p>
+              In response to growing scrutiny, AI companies have shifted from
+              complete secrecy toward some transparency—publishing model cards,
+              system documentation, and blog posts about their practices.
+              However, this transparency remains uneven and self-controlled.
+              Companies decide what to disclose, when to disclose it, and how to
+              frame the information. There is no standardized format, no
+              independent verification, and no meaningful consequence for
+              incomplete or misleading disclosures.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2.2 Stakeholders -->
+        <div class="subsection">
+          <h3 class="subsection-title">2.2 Key Stakeholders</h3>
+          <div class="card-grid card-grid-4">
+            <div class="stakeholder-card">
+              <div class="stakeholder-icon">🏢</div>
+              <h4 class="stakeholder-title">AI Companies</h4>
+              <p class="stakeholder-desc">
+                Build and deploy LLMs using vast datasets. Their interests
+                include maintaining competitive advantage, attracting
+                investment, and avoiding regulatory burdens—which can conflict
+                with full transparency.
+              </p>
+            </div>
+
+            <div class="stakeholder-card">
+              <div class="stakeholder-icon">⚖️</div>
+              <h4 class="stakeholder-title">Governments & Regulators</h4>
+              <p class="stakeholder-desc">
+                Responsible for protecting citizens' rights and ensuring
+                accountability. Face the challenge of regulating fast-moving
+                technology without stifling innovation or falling behind
+                industry developments.
+              </p>
+            </div>
+
+            <div class="stakeholder-card">
+              <div class="stakeholder-icon">👥</div>
+              <h4 class="stakeholder-title">The Public</h4>
+              <p class="stakeholder-desc">
+                Data subjects whose information may be used in training, and end
+                users who interact with AI systems daily. Seek assurance that
+                their data is handled responsibly and that AI systems are
+                trustworthy.
+              </p>
+            </div>
+
+            <div class="stakeholder-card">
+              <div class="stakeholder-icon">🔍</div>
+              <h4 class="stakeholder-title">Civil Society & Researchers</h4>
+              <p class="stakeholder-desc">
+                Journalists, academics, and advocacy groups who investigate AI
+                practices and push for accountability. Often lack access to the
+                information needed to conduct meaningful audits.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2.3 The AI Trust Gap -->
+        <div class="subsection">
+          <h3 class="subsection-title">2.3 The "AI Trust Gap"</h3>
+          <div class="prose">
+            <p>
+              The <strong>AI trust gap</strong> refers to a troubling
+              disconnect: while public attention to AI and reliance on AI
+              systems have increased dramatically, public <em>trust</em> and
+              <em>sense of control</em>
+              have not improved—and may even be declining.
+            </p>
+            <p>
+              Survey data from Pew Research Center and other sources
+              consistently shows that Americans remain concerned about AI. In
+              recent surveys, more respondents express concern than excitement
+              about AI's growing role in daily life. Comfort levels with AI in
+              sensitive domains—hiring decisions, medical diagnoses, content
+              moderation—remain low or have fallen. This is not for lack of
+              information: companies have published more documentation, more
+              blog posts, and more safety reports than ever before.
+            </p>
+            <p>
+              The problem is that transparency, as currently practiced, often
+              takes the form of long, technical documents that ordinary people
+              cannot easily interpret. Model cards and system documentation are
+              written by companies, for companies—not for the public. When
+              information is available but not accessible or trustworthy, more
+              disclosure does not automatically produce more trust.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2.4 Why This Matters Now -->
+        <div class="subsection">
+          <h3 class="subsection-title">2.4 Why This Matters Now</h3>
+          <div class="prose">
+            <p>
+              The urgency of this issue stems from AI's rapid deployment into
+              high-stakes domains. Generative AI is now embedded in search
+              engines used by billions, educational tools used by students and
+              teachers, workplace productivity software, and even government
+              services. When AI systems influence hiring decisions, credit
+              evaluations, medical information, or policing practices, the
+              stakes of getting transparency and trust wrong are enormous.
+            </p>
+            <p>
+              Unlike earlier waves of technology adoption, the current AI boom
+              is happening faster than governance structures can adapt. The gap
+              between technical capability and regulatory readiness creates
+              risks: harms may occur before safeguards are in place, and public
+              trust may erode before institutions can respond.
+            </p>
+          </div>
+
+          <!-- Problem Statement Callout -->
+          <div class="recommendation-box" style="margin-top: 2rem">
+            <div class="recommendation-label">📋 Problem Statement</div>
+            <p class="recommendation-text">
+              Public attention to AI and corporate transparency efforts have
+              both increased significantly since 2022, yet public trust and
+              perceived control have not improved. This disconnect suggests that
+              current governance approaches—relying primarily on voluntary
+              corporate disclosure—are insufficient. New institutional
+              approaches may be needed to close the trust gap.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+       Section 2: Data & Analysis (Dashboard)
+       ======================================================================== -->
+    <section id="data" class="section">
+      <div class="container">
+        <h2 class="section-title">Data & Analysis</h2>
+        <p class="section-subtitle">
+          Three visualizations document the AI trust gap: the pace of
+          development, the lag in policy attention, and the failure of
+          transparency to build trust.
+        </p>
+
+        <!-- 3.1 AI Evolution Timeline -->
+        <div class="chart-section">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">3.1 AI Evolution Timeline</h3>
+              <p class="chart-caption">
+                This interactive timeline compiles key AI milestones from
+                2020–2025, including major model launches (GPT-3, ChatGPT,
+                GPT-4, Claude, Gemini), breakthrough research papers, corporate
+                announcements and investments, cultural moments (viral demos,
+                controversies), and policy interventions (executive orders,
+                legislation, regulatory proposals). Events are color-coded by
+                category. Hover over dots for details; use the category filters
+                to focus on specific event types.
+              </p>
+            </div>
+
+            <!-- Interactive Timeline Visualization -->
+            {% include interactivegraph1.html %}
+
+            <!-- Takeaway -->
+            <div class="chart-takeaway">
+              <h4>📊 Key Takeaway</h4>
+              <p>
+                The timeline reveals a striking pattern:
+                <strong
+                  >AI development is fast and front-loaded by companies, while
+                  governance and public debate come later and in smaller
+                  bursts.</strong
+                >
+                Notice the clustering of model releases and business
+                announcements after 2020, with an acceleration of "breakthrough"
+                claims following ChatGPT's launch in late 2022. Policy moments
+                appear later and less frequently than technical ones—often in
+                response to controversies rather than proactively. This pattern
+                illustrates why reactive policy-making struggles to keep pace
+                with AI development: by the time regulators respond, the
+                technology has already advanced and deployed at scale.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3.2 Tech vs Policy Attention Trends -->
+        <div class="chart-section">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">3.2 Tech vs Policy Attention Trends</h3>
+              <p class="chart-caption">
+                This chart compares public attention to AI technologies versus
+                policy/governance topics over time. The
+                <span style="color: #60a5fa">blue line</span> represents
+                technology attention (Google Trends data for terms like
+                "ChatGPT," "GPT," "AI model," "Claude," "Gemini"). The
+                <span style="color: #f472b6"> pink line</span> represents policy
+                attention (terms like "AI regulation," "AI safety," "AI ethics,"
+                "AI privacy," "AI bias"). Both series are normalized indices
+                (0–100) so only relative trends and timing matter, not absolute
+                values.
+              </p>
+            </div>
+
+            <!-- Placeholder for Tech vs Policy Chart -->
+            <div
+              id="chart-attention"
+              class="chart-container"
+              style="
+                min-height: 400px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(26, 77, 62, 0.05);
+                border-radius: 8px;
+                margin: 1rem 0;
+                border: 1px dashed var(--color-border);
+              "
+            >
+              <p style="color: var(--color-text-muted); font-style: italic">
+                [Tech vs Policy Attention Trends — D3/Observable chart will be
+                mounted here]
+              </p>
+            </div>
+
+            <!-- Takeaway -->
+            <div class="chart-takeaway">
+              <h4>📊 Key Takeaway</h4>
+              <p>
+                <strong
+                  >Policy discourse consistently lags behind technology
+                  discourse.</strong
+                >
+                Tech attention spikes sharply from late 2022 onward, driven by
+                ChatGPT's viral success and subsequent model releases. Policy
+                and governance attention increases too, but later and with less
+                intensity. This lag has significant implications: when policy
+                discourse trails technology by months or years, it becomes
+                difficult to design consent mechanisms, rights protections, and
+                safety safeguards <em>proactively</em>. Instead, governance
+                becomes reactive—responding to scandals, harms, and public
+                outcry after they occur. From a policy perspective, waiting for
+                problems before acting is a risky strategy that leaves the
+                public unprotected during critical periods of rapid deployment.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3.3 The Attention-Trust-Transparency Disconnect -->
+        <div class="chart-section">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                3.3 The Attention–Trust–Transparency Disconnect
+              </h3>
+              <p class="chart-caption">
+                This visualization tracks three normalized variables over time:
+                (1) <strong>Public attention</strong> to AI (search interest and
+                media coverage), (2) <strong>Public trust/comfort</strong> with
+                AI (survey data on Americans' attitudes toward AI in various
+                domains), and (3)
+                <strong>Corporate transparency efforts</strong> (a proxy index
+                based on the count of model cards, safety reports, and
+                transparency disclosures published by major AI companies). All
+                values are normalized for comparison. The key question: as
+                attention and transparency increase, does trust follow?
+              </p>
+            </div>
+
+            <!-- Placeholder for Trust Chart -->
+            <div
+              id="chart-trust"
+              class="chart-container"
+              style="
+                min-height: 400px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(26, 77, 62, 0.05);
+                border-radius: 8px;
+                margin: 1rem 0;
+                border: 1px dashed var(--color-border);
+              "
+            >
+              <p style="color: var(--color-text-muted); font-style: italic">
+                [Attention–Trust–Transparency Chart — D3/Observable chart will
+                be mounted here]
+              </p>
+            </div>
+
+            <!-- Takeaway -->
+            <div class="chart-takeaway">
+              <h4>📊 Key Takeaway</h4>
+              <p>
+                The data reveals a critical disconnect:
+                <strong
+                  >"more transparency" in its current, company-controlled form
+                  does NOT automatically produce more trust.</strong
+                >
+                Attention increases sharply after 2022. Corporate transparency
+                efforts also rise—companies have published more model cards,
+                more documentation, more safety reports than ever before. Yet
+                public trust and comfort with AI remain flat or trend
+                <em>downward</em>. This suggests that information overload,
+                technical language, and conflicts of interest may limit the
+                effectiveness of voluntary transparency. When companies control
+                what information is disclosed, how it's framed, and whether it
+                can be independently verified, the public may reasonably remain
+                skeptical. This is where institutional, legally backed
+                transparency frameworks become relevant: not transparency as
+                corporate PR, but transparency as accountable disclosure with
+                independent oversight.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3.4 Why Transparency Alone Failed -->
+        <div class="subsection" style="margin-top: 3rem">
+          <h3 class="subsection-title">
+            3.4 Why Transparency Alone Failed to Build Trust
+          </h3>
+          <div class="prose">
+            <p>
+              The three visualizations above tell a consistent story: public
+              attention to AI has surged, corporate transparency efforts have
+              increased, yet trust has not improved. Why not?
+            </p>
+            <p>
+              Many policy discussions assume a simple relationship:
+              <em>more information → more trust</em>. But these visualizations
+              show that isn't happening in practice. The naive assumption that
+              disclosure automatically builds confidence fails to account for
+              several factors: the complexity and technical nature of AI
+              documentation, the inherent conflict of interest when companies
+              control their own disclosures, the absence of independent
+              verification, and the lack of meaningful consequences for
+              incomplete or misleading information.
+            </p>
+            <p>
+              Historical experience from other domains offers insight. In food
+              safety, financial services, and environmental protection, public
+              trust typically followed when information disclosures were backed
+              by enforceable rules, independent audits, and penalties for
+              violations—not just voluntary reporting. The FDA doesn't rely on
+              food companies to self-certify safety; the SEC doesn't accept
+              corporate financial statements without audit requirements. These
+              institutional frameworks created conditions under which
+              transparency became meaningful.
+            </p>
+            <p>
+              <strong>To be clear:</strong> this analysis does NOT prove that
+              government intervention automatically builds trust. Regulation can
+              be poorly designed, captured by industry, or out of step with
+              technological realities. What the data <em>does</em> show is that
+              current voluntary approaches have not succeeded. This creates a
+              <strong>governance gap</strong> that justifies exploring
+              institutional solutions—not with certainty that they will work,
+              but with recognition that the status quo is failing.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+       Section 3: Policy Options & Recommendation
+       ======================================================================== -->
+    <section id="policy" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">
+          Policy Options: Who Should Be Responsible for Building AI Trust?
+        </h2>
+        <p class="section-subtitle">
+          The data shows that voluntary transparency has not built trust. The
+          question now is: what institutional arrangements might do better? Here
+          we consider three approaches, each with distinct assumptions about
+          where responsibility should lie.
+        </p>
+
+        <div class="policy-options">
+          <!-- Option 1: Market-Led -->
+          <div class="policy-card">
+            <div class="policy-number">Option 1</div>
+            <h3 class="policy-title">Market-Led Transparency (Status Quo)</h3>
+            <p class="policy-desc">
+              Companies self-disclose training data practices, risk assessments,
+              and safety claims as they see fit. No mandatory standards;
+              transparency is a competitive differentiator and PR strategy.
+            </p>
+
+            <div class="policy-pros">
+              <div class="policy-label pros">Advantages</div>
+              <ul class="policy-list">
+                <li>Maximum flexibility for companies to innovate rapidly</li>
+                <li>No regulatory burden or compliance costs</li>
+                <li>
+                  Companies can tailor disclosures to their specific systems
+                </li>
+              </ul>
+            </div>
+
+            <div class="policy-risks">
+              <div class="policy-label risks">Limitations</div>
+              <ul class="policy-list">
+                <li>
+                  Information asymmetry: companies control what's disclosed
+                </li>
+                <li>No independent verification or accountability</li>
+                <li>Inherent conflict of interest in self-reporting</li>
+                <li>
+                  <strong
+                    >The data in this project suggests it has not built
+                    trust</strong
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Option 2: Soft Governance -->
+          <div class="policy-card">
+            <div class="policy-number">Option 2</div>
+            <h3 class="policy-title">Soft Governance & Co-Regulation</h3>
+            <p class="policy-desc">
+              Industry develops voluntary standards and best practices, possibly
+              with input from civil society and light government oversight.
+              Examples include industry consortia, voluntary certification
+              schemes, and multi-stakeholder frameworks.
+            </p>
+
+            <div class="policy-pros">
+              <div class="policy-label pros">Advantages</div>
+              <ul class="policy-list">
+                <li>
+                  More coordination and consistency than pure market approach
+                </li>
+                <li>Industry buy-in may improve adoption</li>
+                <li>
+                  More adaptable to fast-changing technology than legislation
+                </li>
+              </ul>
+            </div>
+
+            <div class="policy-risks">
+              <div class="policy-label risks">Limitations</div>
+              <ul class="policy-list">
+                <li>Often lacks enforcement and meaningful consequences</li>
+                <li>Risk of industry capture—standards may favor incumbents</li>
+                <li>Relies heavily on good faith, which may not be present</li>
+                <li>Public may not trust industry-led "self-regulation"</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Option 3: Government-Led (Recommended) -->
+          <div class="policy-card recommended">
+            <div class="policy-number">Option 3 — Recommended</div>
+            <h3 class="policy-title">
+              Government-Led Institutional Transparency
+            </h3>
+            <p class="policy-desc">
+              Government sets baseline rules for AI transparency and oversight,
+              with independent enforcement. This shifts responsibility for
+              building trust from individual companies to public institutions
+              accountable to citizens.
+            </p>
+
+            <div class="policy-pros">
+              <div class="policy-label pros">Key Elements</div>
+              <ul class="policy-list">
+                <li>
+                  Mandatory disclosure of training data categories and sources
+                </li>
+                <li>
+                  Required AI risk and impact assessments for high-stakes
+                  systems
+                </li>
+                <li>
+                  Independent audit powers for regulators or accredited third
+                  parties
+                </li>
+                <li>Meaningful redress mechanisms when harms occur</li>
+              </ul>
+            </div>
+
+            <div class="policy-risks">
+              <div class="policy-label risks">Caveats & Risks</div>
+              <ul class="policy-list">
+                <li>Risk of poorly designed or overly burdensome regulation</li>
+                <li>
+                  Regulatory lag—rules may be outdated by the time they're
+                  enacted
+                </li>
+                <li>Requires technical expertise that agencies may lack</li>
+                <li>
+                  Does NOT guarantee trust—implementation matters enormously
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendation Box -->
+        <div class="recommendation-box">
+          <div class="recommendation-label">📌 Recommendation</div>
+          <p class="recommendation-text">
+            Based on the observed disconnect between attention, transparency,
+            and trust, we recommend moving beyond purely market-led transparency
+            toward a
+            <strong>government-led institutional transparency framework</strong
+            >. Such a framework would not guarantee trust by itself—regulation
+            can fail, and implementation details matter enormously. But it would
+            create enforceable conditions under which transparency can be
+            meaningful, auditable, and oriented toward the public interest
+            rather than corporate image management. The key insight from our
+            data is not that regulation definitely works, but that
+            <strong
+              >current voluntary approaches have demonstrably failed</strong
+            >. When the status quo is not working, it is reasonable to explore
+            institutional alternatives—even if they come with their own risks
+            and uncertainties.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+       Section 4: Methods & Data Sources
+       ======================================================================== -->
+    <section id="methods" class="section">
+      <div class="container">
+        <h2 class="section-title">Methods & Data Sources</h2>
+        <p class="section-subtitle">
+          How we collected, processed, and analyzed data for this policy brief.
+        </p>
+
+        <div class="methods-grid">
+          <div class="methods-column">
+            <h3>Data Sources</h3>
+            <ul class="methods-list">
+              <li>
+                <strong>Google Trends:</strong> Search interest data for AI
+                technology terms ("ChatGPT," "GPT," "AI model," "Claude,"
+                "Gemini") and governance terms ("AI regulation," "AI safety,"
+                "AI ethics," "AI privacy") from 2020–2025.
+              </li>
+              <li>
+                <strong>Pew Research Center:</strong> Survey data on American
+                attitudes toward AI, including comfort levels with AI in various
+                applications and general sentiment toward AI development
+                (2021–2024 surveys).
+              </li>
+              <li>
+                <strong>AI Timeline Events:</strong> Compiled from news sources,
+                company announcements, academic publications, and policy
+                documents. Events categorized as model releases, research
+                breakthroughs, business developments, cultural moments, and
+                policy interventions.
+              </li>
+              <li>
+                <strong>Corporate Transparency Index:</strong> Proxy measure
+                based on count of model cards, safety reports, and major
+                transparency disclosures from leading AI companies (OpenAI,
+                Anthropic, Google DeepMind, Meta AI).
+              </li>
+            </ul>
+          </div>
+
+          <div class="methods-column">
+            <h3>Methods & Limitations</h3>
+            <ul class="methods-list">
+              <li>
+                <strong>Normalization:</strong> All trend data normalized to
+                0–100 scale for cross-source comparison. Only relative patterns
+                and timing are meaningful, not absolute values.
+              </li>
+              <li>
+                <strong>Timeline Construction:</strong> Events selected based on
+                significance in industry reporting and academic literature.
+                Categorization is subjective and some events could fit multiple
+                categories.
+              </li>
+              <li>
+                <strong>Limitations:</strong> Google Trends measures search
+                interest, not actual knowledge or engagement. Survey data is
+                self-reported and subject to framing effects. Corporate
+                transparency index is a rough proxy—quality of disclosures
+                varies significantly.
+              </li>
+              <li>
+                <strong>Causal Claims:</strong> This analysis shows correlations
+                and patterns, NOT causal relationships. We cannot prove that
+                voluntary transparency <em>caused</em>
+                trust stagnation, only that the two coexist.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+       Section 5: References & About
+       ======================================================================== -->
+    <section id="references" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">References</h2>
+
+        <ol class="references-list">
+          <li>
+            Bender, E. M., Gebru, T., McMillan-Major, A., & Shmitchell, S.
+            (2021). On the dangers of stochastic parrots: Can language models be
+            too big?
+            <em
+              >Proceedings of the 2021 ACM Conference on Fairness,
+              Accountability, and Transparency</em
+            >, 610–623.
+          </li>
+          <li>
+            Pew Research Center. (2023). Public awareness of artificial
+            intelligence in everyday activities.
+            <em>Pew Research Center Science & Society</em>.
+          </li>
+          <li>
+            Pew Research Center. (2024). Americans' views on AI: Excitement,
+            concern, and the importance of responsible development.
+            <em>Pew Research Center Science & Society</em>.
+          </li>
+          <li>
+            European Commission. (2024). The EU Artificial Intelligence Act.
+            <em>Official Journal of the European Union</em>.
+          </li>
+          <li>
+            The White House. (2023). Executive Order on the Safe, Secure, and
+            Trustworthy Development and Use of Artificial Intelligence.
+            <em>Executive Order 14110</em>.
+          </li>
+          <li>
+            Mitchell, M., et al. (2019). Model cards for model reporting.
+            <em
+              >Proceedings of the Conference on Fairness, Accountability, and
+              Transparency</em
+            >, 220–229.
+          </li>
+          <li>
+            Bommasani, R., et al. (2021). On the opportunities and risks of
+            foundation models.
+            <em>arXiv preprint arXiv:2108.07258</em>.
+          </li>
+          <li>
+            Weidinger, L., et al. (2022). Taxonomy of risks posed by language
+            models.
+            <em
+              >Proceedings of the 2022 ACM Conference on Fairness,
+              Accountability, and Transparency</em
+            >.
+          </li>
+          <li>
+            OpenAI. (2023). GPT-4 technical report.
+            <em>arXiv preprint arXiv:2303.08774</em>.
+          </li>
+          <li>
+            Anthropic. (2024). The Claude Model Card.
+            <em>Anthropic Technical Documentation</em>.
+          </li>
+        </ol>
+
+        <!-- About This Project -->
+        <div class="about-box">
+          <h3 class="about-title">About This Project</h3>
+          <p class="about-text">
+            This policy brief was developed as part of SOC 401: Data Science for
+            Social Good at the University of Washington. The project examines
+            how data practices in large language model training reshape power,
+            privacy, and public trust—with a focus on documenting the failure of
+            voluntary corporate transparency to build public confidence in AI
+            systems.
+          </p>
+          <p class="about-text" style="margin-top: 1rem">
+            The analysis does not claim that government regulation will
+            automatically solve the trust gap. Rather, it documents that current
+            approaches are not working, creating a governance gap that justifies
+            exploring institutional alternatives.
+          </p>
+          <p class="about-text" style="margin-top: 1rem">
+            <strong>Author:</strong> Sixing Tao<br />
+            <strong>Course:</strong> SOC 401: Data Science for Social Good,
+            Autumn 2025<br />
+            <strong>Institution:</strong> University of Washington
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+       Footer
+       ======================================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          © 2025 Sixing Tao · University of Washington ·
+          <a href="#hero">Back to top</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
