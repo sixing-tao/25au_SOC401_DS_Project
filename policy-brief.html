@@ -1264,48 +1264,107 @@
         </div>
 
         <!-- 3.4 Why Transparency Alone Failed -->
-        <div class="subsection" style="margin-top: 3rem">
-          <h3 class="subsection-title">
-            3.4 Why Transparency Alone Failed to Build Trust
-          </h3>
-          <div class="prose">
-            <p>
-              The three visualizations above tell a consistent story: public
-              attention to AI has surged, corporate transparency efforts have
-              increased, yet trust has not improved. Why not?
-            </p>
-            <p>
-              Many policy discussions assume a simple relationship:
-              <em>more information → more trust</em>. But these visualizations
-              show that isn't happening in practice. The naive assumption that
-              disclosure automatically builds confidence fails to account for
-              several factors: the complexity and technical nature of AI
-              documentation, the inherent conflict of interest when companies
-              control their own disclosures, the absence of independent
-              verification, and the lack of meaningful consequences for
-              incomplete or misleading information.
-            </p>
-            <p>
-              Historical experience from other domains offers insight. In food
-              safety, financial services, and environmental protection, public
-              trust typically followed when information disclosures were backed
-              by enforceable rules, independent audits, and penalties for
-              violations—not just voluntary reporting. The FDA doesn't rely on
-              food companies to self-certify safety; the SEC doesn't accept
-              corporate financial statements without audit requirements. These
-              institutional frameworks created conditions under which
-              transparency became meaningful.
-            </p>
-            <p>
-              <strong>To be clear:</strong> this analysis does NOT prove that
-              government intervention automatically builds trust. Regulation can
-              be poorly designed, captured by industry, or out of step with
-              technological realities. What the data <em>does</em> show is that
-              current voluntary approaches have not succeeded. This creates a
-              <strong>governance gap</strong> that justifies exploring
-              institutional solutions—not with certainty that they will work,
-              but with recognition that the status quo is failing.
-            </p>
+        <div class="chart-section">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                3.4 Why Transparency Alone Failed to Build Trust
+              </h3>
+            </div>
+            <div class="prose">
+              <p>
+                The three visualizations above tell a consistent story: public
+                attention to AI has surged, corporate transparency efforts have
+                increased, yet trust has not improved. Why not?
+              </p>
+              <p>
+                Many policy discussions assume a simple relationship:
+                <em>more information → more trust</em>. But these visualizations
+                show that isn't happening in practice. The naive assumption that
+                disclosure automatically builds confidence fails to account for
+                several factors: the complexity and technical nature of AI
+                documentation, the inherent conflict of interest when companies
+                control their own disclosures, the absence of independent
+                verification, and the lack of meaningful consequences for
+                incomplete or misleading information.
+              </p>
+              <p>
+                Historical evidence from other technological domains suggests
+                that public trust rarely emerges from transparency alone, but
+                rather from institutional frameworks that render transparency
+                credible, enforceable, and independently verifiable. In
+                <strong>food safety</strong>, public confidence did not arise
+                because companies voluntarily disclosed ingredients or safety
+                practices, but because regulatory bodies such as the U.S. Food
+                and Drug Administration (FDA) established mandatory standards,
+                inspection regimes, and recall authorities that transformed
+                safety claims into enforceable public guarantees (<a
+                  href="https://www.fda.gov/about-fda/what-we-do"
+                  target="_blank"
+                  >FDA, What We Do</a
+                >). Trust followed not disclosure itself, but the presence of
+                oversight, enforcement, and consequences for failure.
+              </p>
+
+              <p>
+                A similar pattern appears in <strong>financial markets</strong>.
+                Investor trust was not restored through voluntary corporate
+                transparency, but through the creation of the U.S. Securities
+                and Exchange Commission (SEC) after the Great Depression, which
+                mandated standardized financial reporting and required
+                independent external audits (<a
+                  href="https://www.sec.gov/about.shtml"
+                  target="_blank"
+                  >SEC, What We Do</a
+                >). Decades of research show that such regulatory institutions
+                reduce information asymmetry and fraud, enabling markets to
+                function precisely because disclosures are validated by
+                independent verification rather than goodwill alone (<a
+                  href="https://doi.org/10.1111/1475-679X.12115"
+                  target="_blank"
+                  >Leuz & Wysocki, 2016</a
+                >).
+              </p>
+
+              <p>
+                In <strong>aviation</strong>, widespread public trust in
+                commercial flight emerged not from airlines publishing safety
+                information, but from continuous certification, incident
+                reporting, and independent oversight by agencies such as the
+                Federal Aviation Administration (FAA). The FAA's regulatory
+                framework—covering aircraft certification, pilot licensing, and
+                mandatory incident investigation—has been repeatedly cited as a
+                cornerstone of aviation's safety record (<a
+                  href="https://www.faa.gov/about/mission/activities"
+                  target="_blank"
+                  >FAA, Mission and Activities</a
+                >). Here again, trust was not the product of transparency in
+                isolation, but of institutions that aligned private incentives
+                with public risk tolerance.
+              </p>
+
+              <p>
+                Across these domains, government intervention did not eliminate
+                risk nor guarantee trust. Instead, it created the structural
+                conditions under which trust could reasonably form by reducing
+                information asymmetry, enforcing consequences, and providing
+                mechanisms for independent verification. These historical
+                precedents suggest that governance can play a critical role not
+                by replacing transparency, but by making it meaningful,
+                comparable, and trustworthy—an insight that is particularly
+                salient for contemporary AI systems.
+              </p>
+              <p>
+                <strong>To be clear:</strong> this analysis does NOT prove that
+                government intervention automatically builds trust. Regulation
+                can be poorly designed, captured by industry, or out of step
+                with technological realities. What the data <em>does</em> show
+                is that current voluntary approaches have not succeeded. This
+                creates a <strong>governance gap</strong> that justifies
+                exploring institutional solutions—not with certainty that they
+                will work, but with recognition that the status quo is failing.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -1327,122 +1386,158 @@
         </p>
 
         <div class="policy-options">
-          <!-- Option 1: Market-Led -->
+          <!-- Option 1: Market-Led (Status Quo) -->
           <div class="policy-card">
             <div class="policy-number">Option 1</div>
             <h3 class="policy-title">Market-Led Transparency (Status Quo)</h3>
             <p class="policy-desc">
-              Companies self-disclose training data practices, risk assessments,
-              and safety claims as they see fit. No mandatory standards;
-              transparency is a competitive differentiator and PR strategy.
+              Governments do not directly intervene. Companies continue to
+              voluntarily publish Model Cards, System Cards, and safety reports.
+              Market mechanisms—user choice, reputational risk, competitive
+              pressure—serve as the primary constraining forces.
             </p>
 
             <div class="policy-pros">
-              <div class="policy-label pros">Advantages</div>
+              <div class="policy-label pros">Rationale</div>
               <ul class="policy-list">
-                <li>Maximum flexibility for companies to innovate rapidly</li>
-                <li>No regulatory burden or compliance costs</li>
                 <li>
-                  Companies can tailor disclosures to their specific systems
+                  Maximizes innovation speed by avoiding regulatory constraints
+                </li>
+                <li>
+                  Addresses the "pacing problem"—regulation may lag behind
+                  fast-moving technology
+                </li>
+                <li>
+                  Appropriate for early-stage technologies with rapid iteration
+                  cycles
                 </li>
               </ul>
             </div>
 
             <div class="policy-risks">
-              <div class="policy-label risks">Limitations</div>
+              <div class="policy-label risks">Critique (Based on Analysis)</div>
               <ul class="policy-list">
                 <li>
-                  Information asymmetry: companies control what's disclosed
+                  Sections 3.3 and 3.4 demonstrate that transparency has
+                  increased while trust has not
                 </li>
-                <li>No independent verification or accountability</li>
-                <li>Inherent conflict of interest in self-reporting</li>
                 <li>
-                  <strong
-                    >The data in this project suggests it has not built
-                    trust</strong
-                  >
+                  This option is logically invalidated by the evidence:
+                  voluntary disclosure has failed to close the trust gap
+                </li>
+                <li>
+                  Leads to persistent information asymmetry and potential
+                  "tragedy of the commons" dynamics
+                </li>
+                <li>
+                  No independent verification or meaningful consequences for
+                  incomplete disclosure
                 </li>
               </ul>
             </div>
           </div>
 
-          <!-- Option 2: Soft Governance -->
-          <div class="policy-card">
-            <div class="policy-number">Option 2</div>
-            <h3 class="policy-title">Soft Governance & Co-Regulation</h3>
-            <p class="policy-desc">
-              Industry develops voluntary standards and best practices, possibly
-              with input from civil society and light government oversight.
-              Examples include industry consortia, voluntary certification
-              schemes, and multi-stakeholder frameworks.
-            </p>
-
-            <div class="policy-pros">
-              <div class="policy-label pros">Advantages</div>
-              <ul class="policy-list">
-                <li>
-                  More coordination and consistency than pure market approach
-                </li>
-                <li>Industry buy-in may improve adoption</li>
-                <li>
-                  More adaptable to fast-changing technology than legislation
-                </li>
-              </ul>
-            </div>
-
-            <div class="policy-risks">
-              <div class="policy-label risks">Limitations</div>
-              <ul class="policy-list">
-                <li>Often lacks enforcement and meaningful consequences</li>
-                <li>Risk of industry capture—standards may favor incumbents</li>
-                <li>Relies heavily on good faith, which may not be present</li>
-                <li>Public may not trust industry-led "self-regulation"</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Option 3: Government-Led (Recommended) -->
+          <!-- Option 2: Co-Regulation & Audited Standards (Recommended) -->
           <div class="policy-card recommended">
-            <div class="policy-number">Option 3 — Recommended</div>
-            <h3 class="policy-title">
-              Government-Led Institutional Transparency
-            </h3>
+            <div class="policy-number">Option 2 — Recommended</div>
+            <h3 class="policy-title">Co-Regulation & Audited Standards</h3>
             <p class="policy-desc">
-              Government sets baseline rules for AI transparency and oversight,
-              with independent enforcement. This shifts responsibility for
-              building trust from individual companies to public institutions
-              accountable to citizens.
+              Governments set high-level principles and mandatory objectives
+              (e.g., "models must pass independent safety testing"), while
+              specific implementation standards and technical details are
+              jointly developed by industry and academia (similar to NIST
+              frameworks). Third-party auditing serves as the verification
+              mechanism.
             </p>
 
             <div class="policy-pros">
-              <div class="policy-label pros">Key Elements</div>
+              <div class="policy-label pros">Rationale</div>
               <ul class="policy-list">
                 <li>
-                  Mandatory disclosure of training data categories and sources
+                  Balances the tension between "governments lack technical
+                  expertise" and "companies lack public credibility"
                 </li>
                 <li>
-                  Required AI risk and impact assessments for high-stakes
-                  systems
+                  Solves the verification problem through independent
+                  third-party audits
                 </li>
                 <li>
-                  Independent audit powers for regulators or accredited third
-                  parties
+                  Avoids regulatory rigidity—technical standards can be updated
+                  flexibly as technology evolves, unlike legislation
                 </li>
-                <li>Meaningful redress mechanisms when harms occur</li>
+                <li>
+                  Analogous to the financial auditing model: government mandates
+                  audits, but standards are set by professional bodies
+                </li>
               </ul>
             </div>
 
             <div class="policy-risks">
               <div class="policy-label risks">Caveats & Risks</div>
               <ul class="policy-list">
-                <li>Risk of poorly designed or overly burdensome regulation</li>
                 <li>
-                  Regulatory lag—rules may be outdated by the time they're
-                  enacted
+                  Requires robust institutions to prevent industry capture of
+                  standard-setting processes
                 </li>
-                <li>Requires technical expertise that agencies may lack</li>
                 <li>
-                  Does NOT guarantee trust—implementation matters enormously
+                  Third-party auditor competence and independence must be
+                  ensured
+                </li>
+                <li>
+                  May still be too slow for the fastest-moving frontier systems
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Option 3: Centralized Oversight & Pre-Market Licensing -->
+          <div class="policy-card">
+            <div class="policy-number">Option 3</div>
+            <h3 class="policy-title">
+              Centralized Oversight & Pre-Market Licensing
+            </h3>
+            <p class="policy-desc">
+              Establish a dedicated AI regulatory agency (analogous to the FDA
+              or FAA) that implements a pre-market approval regime. Frontier
+              models must undergo government testing and approval before public
+              release; unlicensed systems cannot be deployed.
+            </p>
+
+            <div class="policy-pros">
+              <div class="policy-label pros">Rationale</div>
+              <ul class="policy-list">
+                <li>
+                  Most powerful form of oversight, directly corresponding to the
+                  FDA/FAA precedents cited in Section 3.4
+                </li>
+                <li>
+                  Maximizes prevention of unsafe products reaching the public
+                </li>
+                <li>
+                  Grants government direct enforcement authority with clear
+                  consequences
+                </li>
+              </ul>
+            </div>
+
+            <div class="policy-risks">
+              <div class="policy-label risks">Caveats & Risks</div>
+              <ul class="policy-list">
+                <li>
+                  May create rent-seeking opportunities and dramatically
+                  increase compliance costs
+                </li>
+                <li>
+                  Could favor large incumbents and stifle open-source
+                  communities and startups
+                </li>
+                <li>
+                  Governments may lack sufficient compute capacity and technical
+                  talent to evaluate frontier models
+                </li>
+                <li>
+                  Risk of regulatory lag—approval processes may not keep pace
+                  with rapid model iteration
                 </li>
               </ul>
             </div>
@@ -1456,67 +1551,96 @@
             Based on the observed disconnect between attention, transparency,
             and trust, we recommend moving beyond purely market-led transparency
             toward a
-            <strong>government-led institutional transparency framework</strong
-            >. Such a framework would not guarantee trust by itself—regulation
-            can fail, and implementation details matter enormously. But it would
-            create enforceable conditions under which transparency can be
-            meaningful, auditable, and oriented toward the public interest
-            rather than corporate image management. The key insight from our
-            data is not that regulation definitely works, but that
+            <strong>co-regulation and audited standards framework</strong>.
+            Option 1 (status quo) is logically invalidated by the evidence
+            presented in Sections 3.3 and 3.4: voluntary disclosure has
+            increased, yet trust has not followed. Option 3 (centralized
+            pre-market licensing) offers the strongest oversight but risks
+            regulatory capture, prohibitive compliance costs, and exclusion of
+            open-source and startup innovation. Option 2 strikes a practical
+            balance: governments set enforceable objectives while industry and
+            academia collaboratively develop technical standards, with
+            independent third-party audits providing the verification mechanism
+            that voluntary disclosure lacks. This approach mirrors the financial
+            auditing model—mandated oversight with flexible, expert-driven
+            implementation. The key insight is not that regulation guarantees
+            trust, but that
             <strong
               >current voluntary approaches have demonstrably failed</strong
             >. When the status quo is not working, it is reasonable to explore
-            institutional alternatives—even if they come with their own risks
-            and uncertainties.
+            institutional alternatives that combine accountability with
+            adaptability.
           </p>
         </div>
       </div>
     </section>
 
     <!-- ========================================================================
-       Section 4: Methods & Data Sources
+       Section 4: Data Sources & Limitations
        ======================================================================== -->
     <section id="methods" class="section">
       <div class="container">
-        <h2 class="section-title">Methods & Data Sources</h2>
+        <h2 class="section-title">Data Sources & Limitations</h2>
         <p class="section-subtitle">
           How we collected, processed, and analyzed data for this policy brief.
         </p>
 
         <div class="methods-grid">
           <div class="methods-column">
-            <h3>Data Sources (ADD Link)</h3>
+            <h3>Data Sources</h3>
             <ul class="methods-list">
               <li>
-                <strong>Google Trends:</strong> Search interest data for AI
-                technology terms ("ChatGPT," "GPT," "AI model," "Claude,"
-                "Gemini") and governance terms ("AI regulation," "AI safety,"
-                "AI ethics," "AI privacy") from 2020–2025.
+                <strong
+                  ><a href="https://trends.google.com/trends/" target="_blank"
+                    >Google Trends</a
+                  >:</strong
+                >
+                Search interest data for AI technology terms ("ChatGPT," "GPT,"
+                "AI model," "Claude," "Gemini") and governance terms ("AI
+                regulation," "AI safety," "AI ethics," "AI privacy") from
+                2020–2025.
               </li>
               <li>
-                <strong>Pew Research Center:</strong> Survey data on American
-                attitudes toward AI, including comfort levels with AI in various
-                applications and general sentiment toward AI development
-                (2021–2024 surveys).
+                <strong
+                  ><a
+                    href="https://www.pewresearch.org/wp-content/uploads/sites/20/2025/09/PS_2025.9.17_AI-and-its-impact_topline.pdf"
+                    target="_blank"
+                    >Pew Research Center</a
+                  >:</strong
+                >
+                Survey data on American attitudes toward AI, including comfort
+                levels with AI in various applications and general sentiment
+                toward AI development (2021–2025 surveys).
               </li>
               <li>
-                <strong>AI Timeline Events:</strong> Compiled from news sources,
-                company announcements, academic publications, and policy
-                documents. Events categorized as model releases, research
-                breakthroughs, business developments, cultural moments, and
-                policy interventions.
+                <strong
+                  ><a href="https://ai-timeline.org" target="_blank"
+                    >AI Timeline Events</a
+                  >:</strong
+                >
+                Compiled from news sources, company announcements, academic
+                publications, and policy documents. Events categorized as model
+                releases, research breakthroughs, business developments,
+                cultural moments, and policy interventions.
               </li>
               <li>
-                <strong>Corporate Transparency Index:</strong> Proxy measure
-                based on count of model cards, safety reports, and major
-                transparency disclosures from leading AI companies (OpenAI,
-                Anthropic, Google DeepMind, Meta AI).
+                <strong
+                  ><a
+                    href="https://crfm.stanford.edu/fmti/May-2024/index.html"
+                    target="_blank"
+                    >Foundation Model Transparency Index</a
+                  >:</strong
+                >
+                Stanford CRFM's assessment of transparency across major AI
+                companies (OpenAI, Google, Anthropic, Meta, Amazon, Stability
+                AI, AI2 Lab), based on disclosures related to training data,
+                model cards, and safety reports.
               </li>
             </ul>
           </div>
 
           <div class="methods-column">
-            <h3>Methods & Limitations</h3>
+            <h3>Limitations</h3>
             <ul class="methods-list">
               <li>
                 <strong>Normalization:</strong> All trend data normalized to
@@ -1524,23 +1648,30 @@
                 and timing are meaningful, not absolute values.
               </li>
               <li>
-                <strong>Timeline Construction:</strong> Events selected based on
-                significance in industry reporting and academic literature.
-                Categorization is subjective and some events could fit multiple
-                categories.
+                <strong>Timeline Construction:</strong> Events were manually
+                curated based on significance in industry reporting and academic
+                literature. The selection is not exhaustive—some relevant events
+                may be missing, and categorization is subjective.
               </li>
               <li>
-                <strong>Limitations:</strong> Google Trends measures search
+                <strong>Data Proxies:</strong> Google Trends measures search
                 interest, not actual knowledge or engagement. Survey data is
-                self-reported and subject to framing effects. Corporate
-                transparency index is a rough proxy—quality of disclosures
-                varies significantly.
+                self-reported and subject to framing effects. The transparency
+                index is a rough proxy—quality of disclosures varies
+                significantly across companies.
+              </li>
+              <li>
+                <strong>Trust Operationalization:</strong> This analysis uses
+                expressed concern as an inverse proxy for trust. While concern
+                reflects perceived risk and unease, it may not fully capture the
+                multidimensional nature of trust. Alternative measures could
+                yield different conclusions.
               </li>
               <li>
                 <strong>Causal Claims:</strong> This analysis shows correlations
                 and patterns, NOT causal relationships. We cannot prove that
-                voluntary transparency <em>caused</em>
-                trust stagnation, only that the two coexist.
+                voluntary transparency <em>caused</em> trust stagnation, only
+                that the two coexist.
               </li>
             </ul>
           </div>
@@ -1549,92 +1680,35 @@
     </section>
 
     <!-- ========================================================================
-       Section 5: References & About
+       Section 5: About This Project
        ======================================================================== -->
-    <section id="references" class="section section-alt">
+    <section id="about" class="section section-alt">
       <div class="container">
-        <h2 class="section-title">References</h2>
-
-        <ol class="references-list">
-          <li>
-            Bender, E. M., Gebru, T., McMillan-Major, A., & Shmitchell, S.
-            (2021). On the dangers of stochastic parrots: Can language models be
-            too big?
-            <em
-              >Proceedings of the 2021 ACM Conference on Fairness,
-              Accountability, and Transparency</em
-            >, 610–623.
-          </li>
-          <li>
-            Pew Research Center. (2023). Public awareness of artificial
-            intelligence in everyday activities.
-            <em>Pew Research Center Science & Society</em>.
-          </li>
-          <li>
-            Pew Research Center. (2024). Americans' views on AI: Excitement,
-            concern, and the importance of responsible development.
-            <em>Pew Research Center Science & Society</em>.
-          </li>
-          <li>
-            European Commission. (2024). The EU Artificial Intelligence Act.
-            <em>Official Journal of the European Union</em>.
-          </li>
-          <li>
-            The White House. (2023). Executive Order on the Safe, Secure, and
-            Trustworthy Development and Use of Artificial Intelligence.
-            <em>Executive Order 14110</em>.
-          </li>
-          <li>
-            Mitchell, M., et al. (2019). Model cards for model reporting.
-            <em
-              >Proceedings of the Conference on Fairness, Accountability, and
-              Transparency</em
-            >, 220–229.
-          </li>
-          <li>
-            Bommasani, R., et al. (2021). On the opportunities and risks of
-            foundation models.
-            <em>arXiv preprint arXiv:2108.07258</em>.
-          </li>
-          <li>
-            Weidinger, L., et al. (2022). Taxonomy of risks posed by language
-            models.
-            <em
-              >Proceedings of the 2022 ACM Conference on Fairness,
-              Accountability, and Transparency</em
-            >.
-          </li>
-          <li>
-            OpenAI. (2023). GPT-4 technical report.
-            <em>arXiv preprint arXiv:2303.08774</em>.
-          </li>
-          <li>
-            Anthropic. (2024). The Claude Model Card.
-            <em>Anthropic Technical Documentation</em>.
-          </li>
-        </ol>
-
         <!-- About This Project -->
         <div class="about-box">
           <h3 class="about-title">About This Project</h3>
           <p class="about-text">
-            This policy brief was developed as part of SOC 401: Data Science for
-            Social Good at the University of Washington. The project examines
-            how data practices in large language model training reshape power,
-            privacy, and public trust—with a focus on documenting the failure of
-            voluntary corporate transparency to build public confidence in AI
-            systems.
+            This policy brief examines the relationship between public
+            attention, corporate transparency, and trust in AI systems. Using
+            Google Trends data, Pew Research surveys, and industry transparency
+            assessments, the analysis documents a persistent disconnect: while
+            public attention to AI has surged and corporate transparency efforts
+            have expanded, public concern remains elevated and excitement has
+            declined. Historical evidence from food safety, financial markets,
+            and aviation suggests that trust typically follows institutional
+            frameworks—not voluntary disclosure alone.
           </p>
           <p class="about-text" style="margin-top: 1rem">
             The analysis does not claim that government regulation will
             automatically solve the trust gap. Rather, it documents that current
-            approaches are not working, creating a governance gap that justifies
-            exploring institutional alternatives.
+            voluntary approaches have not succeeded, creating a governance gap
+            that justifies exploring institutional alternatives. The recommended
+            path—co-regulation with third-party auditing—seeks to balance
+            accountability with adaptability, drawing on the financial auditing
+            model as a practical precedent.
           </p>
           <p class="about-text" style="margin-top: 1rem">
             <strong>Author:</strong> Sixing Tao<br />
-            <strong>Course:</strong> : Data Science for Social Good, Autumn
-            2025<br />
             <strong>Institution:</strong> University of Washington
           </p>
         </div>
