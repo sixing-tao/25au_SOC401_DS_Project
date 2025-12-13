@@ -92,23 +92,23 @@
   // Load all data sources in parallel
   Promise.all([
     fetch(timelinePath).then((response) => response.text()),
-    d3.text(techCsvPath),  // Load as text to handle Google Trends metadata
-    d3.text(govCsvPath),   // Load as text to handle Google Trends metadata
+    d3.text(techCsvPath), // Load as text to handle Google Trends metadata
+    d3.text(govCsvPath), // Load as text to handle Google Trends metadata
   ])
     .then(([jsText, techText, govText]) => {
       console.log("All data loaded successfully");
 
       // Helper function to remove Google Trends metadata lines
       function cleanCSV(text) {
-        const lines = text.split('\n');
+        const lines = text.split("\n");
         // Find the line that starts with "Week" (the actual header)
-        const headerIndex = lines.findIndex(l => l.startsWith('Week'));
+        const headerIndex = lines.findIndex((l) => l.startsWith("Week"));
         if (headerIndex === -1) {
           console.error("Could not find 'Week' header in CSV");
           return [];
         }
         // Parse the cleaned CSV starting from the header line
-        return d3.csvParse(lines.slice(headerIndex).join('\n'));
+        return d3.csvParse(lines.slice(headerIndex).join("\n"));
       }
 
       // Clean and parse CSV data
@@ -851,6 +851,44 @@
       .style("font-size", "12px")
       .style("font-weight", "600")
       .text("Reset Timeframe");
+
+    // Add explanatory note at the top center
+    const noteText = svg
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", margin.top + 48)
+      .attr("text-anchor", "middle")
+      .style("fill", "#d62728")
+      .style("font-size", "10px")
+      .style("font-family", "sans-serif")
+      .style("font-style", "italic");
+
+    noteText
+      .append("tspan")
+      .attr("x", width / 2)
+      .attr("dy", "0")
+      .text(
+        "For those trend lines, these data come from Google Trends, where values are normalized within each search term."
+      );
+
+    noteText
+      .append("tspan")
+      .attr("x", width / 2)
+      .attr("dy", "14")
+      .text(
+        "This means the left and right scales are not directly comparable in magnitude, but the trends over time remain meaningful."
+      );
+
+    // Add source label in bottom right corner
+    svg
+      .append("text")
+      .attr("x", width - margin.right - 10)
+      .attr("y", height - margin.bottom + 30)
+      .attr("text-anchor", "end")
+      .style("fill", "#666")
+      .style("font-size", "11px")
+      .style("font-family", "sans-serif")
+      .text("Source: ai-timeline.org, Google Trends");
 
     console.log("Timeline rendering complete");
   }
