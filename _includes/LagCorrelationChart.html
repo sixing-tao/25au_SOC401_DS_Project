@@ -1,0 +1,732 @@
+<!-- Tech vs Governance Time Series & Lagged Correlation Charts -->
+<div id="time-series-container" style="width: 100%; margin: 2rem 0">
+  <!-- Time series chart will be rendered here -->
+</div>
+
+<div id="lag-correlation-container" style="width: 100%; margin: 2rem 0">
+  <!-- Lag correlation chart will be rendered here -->
+</div>
+
+<style>
+  #lag-correlation-container .brush .selection,
+  #time-series-container .brush .selection {
+    fill: #2563eb;
+    fill-opacity: 0.2;
+    stroke: #2563eb;
+    stroke-width: 1;
+  }
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+  (function() {
+    // Chart configuration
+    const margin = { top: 40, right: 30, bottom: 60, left: 60 };
+    const width = 800 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+    const timeSeriesHeight = 350 - margin.top - margin.bottom;
+
+    let MAX_LAG = 26; // Default max lag in weeks
+    let useSmoothing = false;
+
+    const basePath = "{{ site.baseurl }}";
+    const techCsvPath = basePath + "/data/attention_trends_US_tech.csv";
+    const govCsvPath = basePath + "/data/attention_trends_US_governance.csv";
+
+    // ========== TIME SERIES CHART SETUP ==========
+    const timeSeriesContainer = d3.select('#time-series-container');
+
+    const tsChartContainer = timeSeriesContainer.append('div')
+      .style('background', 'white')
+      .style('border-radius', '8px')
+      .style('padding', '20px')
+      .style('box-shadow', '0 2px 4px rgba(0,0,0,0.1)')
+      .style('margin-bottom', '2rem');
+
+    tsChartContainer.append('h3')
+      .style('margin', '0 0 10px 0')
+      .style('font-size', '16px')
+      .style('font-weight', '600')
+      .style('color', '#333')
+      .text('Tech vs Governance — Standardized Trend Indices (z-scored)');
+
+    const tsCaption = tsChartContainer.append('p')
+      .style('font-size', '13px')
+      .style('color', '#666')
+      .style('margin-bottom', '15px')
+      .text('Blue line shows technology attention index, orange line shows governance attention index. Hover to see exact values.');
+
+    const tsSvg = tsChartContainer.append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', timeSeriesHeight + margin.top + margin.bottom);
+
+    const tsG = tsSvg.append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    const tsTooltip = timeSeriesContainer.append('div')
+      .style('position', 'absolute')
+      .style('background', 'rgba(0, 0, 0, 0.85)')
+      .style('color', 'white')
+      .style('padding', '8px 12px')
+      .style('border-radius', '4px')
+      .style('font-size', '12px')
+      .style('pointer-events', 'none')
+      .style('opacity', 0)
+      .style('z-index', 1000);
+
+    const tsCorrelationDiv = tsChartContainer.append('div')
+      .style('margin-top', '10px')
+      .style('font-size', '13px')
+      .style('color', '#333')
+      .style('font-weight', '500');
+
+    // Smoothing toggle for time series
+    const tsSmoothControl = tsChartContainer.append('div')
+      .style('margin-top', '10px')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('gap', '8px');
+
+    const smoothCheckbox = tsSmoothControl.append('input')
+      .attr('type', 'checkbox')
+      .attr('id', 'smooth-toggle-ts');
+
+    tsSmoothControl.append('label')
+      .attr('for', 'smooth-toggle-ts')
+      .text('4-week rolling mean')
+      .style('color', '#666')
+      .style('cursor', 'pointer')
+      .style('font-size', '13px');
+
+    // ========== LAG CORRELATION CHART SETUP ==========
+    const container = d3.select('#lag-correlation-container');
+
+    const chartContainer = container.append('div')
+      .style('background', 'white')
+      .style('border-radius', '8px')
+      .style('padding', '20px')
+      .style('box-shadow', '0 2px 4px rgba(0,0,0,0.1)');
+
+    // Title
+    chartContainer.append('h3')
+      .style('margin', '0 0 10px 0')
+      .style('font-size', '16px')
+      .style('font-weight', '600')
+      .style('color', '#333')
+      .text('Lagged Cross-Correlation: Technology vs Governance Attention');
+
+    // Controls container
+    const controls = chartContainer.append('div')
+      .style('margin-bottom', '20px')
+      .style('display', 'flex')
+      .style('gap', '30px')
+      .style('align-items', 'center')
+      .style('font-size', '13px');
+
+    // Max lag slider
+    const lagControl = controls.append('div')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('gap', '10px');
+
+    lagControl.append('label')
+      .text('Max Lag:')
+      .style('color', '#666');
+
+    const lagSlider = lagControl.append('input')
+      .attr('type', 'range')
+      .attr('min', 4)
+      .attr('max', 52)
+      .attr('value', MAX_LAG)
+      .style('width', '120px');
+
+    const lagValue = lagControl.append('span')
+      .style('color', '#333')
+      .style('font-weight', '500')
+      .text(MAX_LAG + ' weeks');
+
+    // Stats display
+    const statsDiv = chartContainer.append('div')
+      .style('margin-bottom', '10px')
+      .style('font-size', '13px')
+      .style('color', '#666')
+      .style('min-height', '20px');
+
+    // SVG container
+    const svg = chartContainer.append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom);
+
+    const g = svg.append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    // Tooltip
+    const tooltip = container.append('div')
+      .style('position', 'absolute')
+      .style('background', 'rgba(0, 0, 0, 0.85)')
+      .style('color', 'white')
+      .style('padding', '8px 12px')
+      .style('border-radius', '4px')
+      .style('font-size', '12px')
+      .style('pointer-events', 'none')
+      .style('opacity', 0)
+      .style('z-index', 1000);
+
+    // Helper function to load and clean Google Trends CSV
+    async function loadTrendsCsv(path) {
+      const text = await d3.text(path);
+      // Skip first 2 lines (Category header and empty line)
+      const lines = text.split('\n').slice(2);
+      const cleanedCsv = lines.join('\n');
+      return d3.csvParse(cleanedCsv);
+    }
+
+    // Load and process data
+    Promise.all([
+      loadTrendsCsv(techCsvPath),
+      loadTrendsCsv(govCsvPath)
+    ]).then(function([techData, govData]) {
+
+      // Build indices
+      const techIndex = buildIndex(techData, 'Tech');
+      const govIndex = buildIndex(govData, 'Gov');
+
+      // Inner join by date
+      const joined = innerJoin(techIndex, govIndex);
+
+      // Initial render
+      renderTimeSeries(joined);
+      updateChart(joined);
+
+      // Event listeners
+      lagSlider.on('input', function() {
+        MAX_LAG = +this.value;
+        lagValue.text(MAX_LAG + ' weeks');
+        updateChart(joined);
+      });
+
+      smoothCheckbox.on('change', function() {
+        useSmoothing = this.checked;
+        renderTimeSeries(joined);
+        updateChart(joined);
+      });
+
+    }).catch(function(error) {
+      chartContainer.append('div')
+        .style('color', 'red')
+        .style('padding', '20px')
+        .text('Error loading data: ' + error.message);
+      console.error('Error loading data:', error);
+    });
+
+    /**
+     * Render time series chart showing Tech vs Gov indices over time
+     */
+    function renderTimeSeries(data) {
+      tsG.selectAll('*').remove();
+
+      const processedData = useSmoothing ? rollingMean(data) : data;
+
+      // Calculate zero-lag correlation
+      const techValues = processedData.map(function(d) { return d.tech; });
+      const govValues = processedData.map(function(d) { return d.gov; });
+      const correlation = pearsonCorrelation(techValues, govValues);
+
+      tsCorrelationDiv.html('Zero-lag correlation (Tech vs Gov): <strong>' + correlation.toFixed(3) + '</strong>' +
+        (useSmoothing ? ' (z-scored, smoothed)' : ' (z-scored)'));
+
+      // Scales
+      const xScale = d3.scaleTime()
+        .domain(d3.extent(processedData, function(d) { return d.date; }))
+        .range([0, width]);
+
+      const yExtent = d3.extent(processedData.flatMap(function(d) { return [d.tech, d.gov]; }));
+      const yScale = d3.scaleLinear()
+        .domain(yExtent)
+        .nice()
+        .range([timeSeriesHeight, 0]);
+
+      // Axes
+      const xAxis = d3.axisBottom(xScale)
+        .ticks(8);
+
+      const yAxis = d3.axisLeft(yScale)
+        .ticks(6);
+
+      tsG.append('g')
+        .attr('transform', 'translate(0,' + timeSeriesHeight + ')')
+        .call(xAxis)
+        .style('font-size', '11px');
+
+      tsG.append('g')
+        .call(yAxis)
+        .style('font-size', '11px');
+
+      // Axis labels
+      tsG.append('text')
+        .attr('x', width / 2)
+        .attr('y', timeSeriesHeight + 45)
+        .style('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .text('Date');
+
+      tsG.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -timeSeriesHeight / 2)
+        .attr('y', -45)
+        .style('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .text('Standardized index (z)');
+
+      // Line generators
+      const techLine = d3.line()
+        .x(function(d) { return xScale(d.date); })
+        .y(function(d) { return yScale(d.tech); })
+        .curve(d3.curveMonotoneX);
+
+      const govLine = d3.line()
+        .x(function(d) { return xScale(d.date); })
+        .y(function(d) { return yScale(d.gov); })
+        .curve(d3.curveMonotoneX);
+
+      // Draw lines
+      tsG.append('path')
+        .datum(processedData)
+        .attr('fill', 'none')
+        .attr('stroke', '#1f77b4')
+        .attr('stroke-width', 2)
+        .attr('d', techLine);
+
+      tsG.append('path')
+        .datum(processedData)
+        .attr('fill', 'none')
+        .attr('stroke', '#ff7f0e')
+        .attr('stroke-width', 2)
+        .attr('d', govLine);
+
+      // Add legend
+      const legend = tsG.append('g')
+        .attr('transform', 'translate(' + (width - 200) + ',10)');
+
+      legend.append('line')
+        .attr('x1', 0)
+        .attr('x2', 30)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', '#1f77b4')
+        .attr('stroke-width', 2);
+
+      legend.append('text')
+        .attr('x', 35)
+        .attr('y', 4)
+        .style('font-size', '12px')
+        .text('TechIndex');
+
+      legend.append('line')
+        .attr('x1', 0)
+        .attr('x2', 30)
+        .attr('y1', 20)
+        .attr('y2', 20)
+        .attr('stroke', '#ff7f0e')
+        .attr('stroke-width', 2);
+
+      legend.append('text')
+        .attr('x', 35)
+        .attr('y', 24)
+        .style('font-size', '12px')
+        .text('GovIndex');
+
+      // Interactive hover layer
+      const bisect = d3.bisector(function(d) { return d.date; }).left;
+
+      const focus = tsG.append('g')
+        .style('display', 'none');
+
+      focus.append('circle')
+        .attr('class', 'tech-dot')
+        .attr('r', 4)
+        .attr('fill', '#1f77b4');
+
+      focus.append('circle')
+        .attr('class', 'gov-dot')
+        .attr('r', 4)
+        .attr('fill', '#ff7f0e');
+
+      focus.append('line')
+        .attr('class', 'hover-line')
+        .attr('stroke', '#999')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3');
+
+      const overlay = tsG.append('rect')
+        .attr('class', 'overlay')
+        .attr('fill', 'none')
+        .attr('pointer-events', 'all')
+        .attr('width', width)
+        .attr('height', timeSeriesHeight)
+        .on('mouseover', function() { focus.style('display', null); })
+        .on('mouseout', function() {
+          focus.style('display', 'none');
+          tsTooltip.style('opacity', 0);
+        })
+        .on('mousemove', function(event) {
+          const x0 = xScale.invert(d3.pointer(event, this)[0]);
+          const i = bisect(processedData, x0, 1);
+          const d0 = processedData[i - 1];
+          const d1 = processedData[i];
+          const d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+          focus.select('.tech-dot')
+            .attr('cx', xScale(d.date))
+            .attr('cy', yScale(d.tech));
+
+          focus.select('.gov-dot')
+            .attr('cx', xScale(d.date))
+            .attr('cy', yScale(d.gov));
+
+          focus.select('.hover-line')
+            .attr('x1', xScale(d.date))
+            .attr('x2', xScale(d.date))
+            .attr('y1', 0)
+            .attr('y2', timeSeriesHeight);
+
+          const formatDate = d3.timeFormat('%Y-%m-%d');
+          tsTooltip
+            .style('opacity', 1)
+            .html(
+              '<div style="margin-bottom: 4px;"><strong>Date:</strong> ' + formatDate(d.date) + '</div>' +
+              '<div style="margin-bottom: 2px; color: #1f77b4;"><strong>Tech Index:</strong> ' + d.tech.toFixed(3) + '</div>' +
+              '<div style="color: #ff7f0e;"><strong>Gov Index:</strong> ' + d.gov.toFixed(3) + '</div>'
+            )
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 10) + 'px');
+        });
+    }
+
+    /**
+     * Build index from CSV data
+     */
+    function buildIndex(data, name) {
+      // Get keyword columns (all except Week/date)
+      const keywordCols = Object.keys(data[0]).filter(function(d) {
+        return d !== 'Week' && d !== 'date';
+      });
+
+      // Parse dates and convert values to numbers
+      data.forEach(function(d) {
+        // Handle both 'Week' and 'date' column names
+        const dateStr = d.Week || d.date;
+        d.date = new Date(dateStr);
+        keywordCols.forEach(function(col) {
+          d[col] = +d[col] || 0;
+        });
+      });
+
+      // Z-score each keyword column
+      const zscored = {};
+      keywordCols.forEach(function(col) {
+        const values = data.map(function(d) { return d[col]; });
+        const mean = d3.mean(values);
+        const std = d3.deviation(values) || 1;
+        zscored[col] = data.map(function(d) { return (d[col] - mean) / std; });
+      });
+
+      // Compute index as mean of z-scored keywords
+      const index = data.map(function(d, i) {
+        return {
+          date: d.date,
+          value: d3.mean(keywordCols.map(function(col) { return zscored[col][i]; }))
+        };
+      });
+
+      return index;
+    }
+
+    /**
+     * Inner join two time series by date
+     */
+    function innerJoin(series1, series2) {
+      const dateMap = new Map(series2.map(function(d) {
+        return [d.date.getTime(), d.value];
+      }));
+
+      return series1
+        .filter(function(d) { return dateMap.has(d.date.getTime()); })
+        .map(function(d) {
+          return {
+            date: d.date,
+            tech: d.value,
+            gov: dateMap.get(d.date.getTime())
+          };
+        })
+        .sort(function(a, b) { return a.date - b.date; });
+    }
+
+    /**
+     * Apply 4-week rolling mean
+     */
+    function rollingMean(data, window) {
+      window = window || 4;
+      return data.map(function(d, i) {
+        const start = Math.max(0, i - window + 1);
+        const slice = data.slice(start, i + 1);
+        return {
+          date: d.date,
+          tech: d3.mean(slice.map(function(x) { return x.tech; })),
+          gov: d3.mean(slice.map(function(x) { return x.gov; }))
+        };
+      });
+    }
+
+    /**
+     * Compute Pearson correlation
+     */
+    function pearsonCorrelation(x, y) {
+      const n = x.length;
+      const meanX = d3.mean(x);
+      const meanY = d3.mean(y);
+
+      let num = 0, denX = 0, denY = 0;
+      for (let i = 0; i < n; i++) {
+        const dx = x[i] - meanX;
+        const dy = y[i] - meanY;
+        num += dx * dy;
+        denX += dx * dx;
+        denY += dy * dy;
+      }
+
+      return num / Math.sqrt(denX * denY);
+    }
+
+    /**
+     * Compute lagged correlations
+     */
+    function computeLaggedCorrelations(data, maxLag) {
+      const processedData = useSmoothing ? rollingMean(data) : data;
+      const correlations = [];
+
+      for (let lag = -maxLag; lag <= maxLag; lag++) {
+        let techSeries, govSeries;
+
+        if (lag >= 0) {
+          // Positive lag: Gov lags Tech
+          techSeries = processedData.slice(0, -lag || undefined).map(function(d) { return d.tech; });
+          govSeries = processedData.slice(lag).map(function(d) { return d.gov; });
+        } else {
+          // Negative lag: Tech lags Gov
+          techSeries = processedData.slice(-lag).map(function(d) { return d.tech; });
+          govSeries = processedData.slice(0, lag).map(function(d) { return d.gov; });
+        }
+
+        if (techSeries.length > 1) {
+          const r = pearsonCorrelation(techSeries, govSeries);
+          correlations.push({ lag: lag, r: r });
+        }
+      }
+
+      return correlations;
+    }
+
+    /**
+     * Get interpretation text for a lag value
+     */
+    function getInterpretation(lag, r) {
+      const absR = Math.abs(r);
+      const strength = absR > 0.7 ? 'Strong' : absR > 0.4 ? 'Moderate' : 'Weak';
+      const direction = r > 0 ? 'positive' : 'negative';
+
+      if (lag > 0) {
+        return strength + ' ' + direction + ' correlation: Governance attention lags Technology by ' + lag + ' weeks';
+      } else if (lag < 0) {
+        return strength + ' ' + direction + ' correlation: Technology attention lags Governance by ' + (-lag) + ' weeks';
+      } else {
+        return strength + ' ' + direction + ' correlation: No lag (simultaneous)';
+      }
+    }
+
+    /**
+     * Update chart with new parameters
+     */
+    function updateChart(data) {
+      g.selectAll('*').remove();
+      statsDiv.text('');
+
+      const correlations = computeLaggedCorrelations(data, MAX_LAG);
+
+      // Find peak correlation
+      const peak = correlations.reduce(function(max, d) {
+        return Math.abs(d.r) > Math.abs(max.r) ? d : max;
+      });
+
+      // Scales
+      const xScale = d3.scaleLinear()
+        .domain([-MAX_LAG, MAX_LAG])
+        .range([0, width]);
+
+      const yScale = d3.scaleLinear()
+        .domain([-1, 1])
+        .range([height, 0]);
+
+      // Axes
+      const xAxis = d3.axisBottom(xScale)
+        .tickFormat(function(d) { return d === 0 ? '0' : d > 0 ? '+' + d : d; });
+
+      const yAxis = d3.axisLeft(yScale)
+        .ticks(10);
+
+      g.append('g')
+        .attr('transform', 'translate(0,' + height + ')')
+        .call(xAxis)
+        .style('font-size', '11px');
+
+      g.append('g')
+        .call(yAxis)
+        .style('font-size', '11px');
+
+      // Axis labels
+      g.append('text')
+        .attr('x', width / 2)
+        .attr('y', height + 45)
+        .style('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .text('Lag (weeks, positive = Governance lags Technology)');
+
+      g.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height / 2)
+        .attr('y', -45)
+        .style('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .text('Correlation Coefficient (r)');
+
+      // Zero lines
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', yScale(0))
+        .attr('y2', yScale(0))
+        .attr('stroke', '#999')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3');
+
+      g.append('line')
+        .attr('x1', xScale(0))
+        .attr('x2', xScale(0))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#999')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3');
+
+      // Line path
+      const line = d3.line()
+        .x(function(d) { return xScale(d.lag); })
+        .y(function(d) { return yScale(d.r); })
+        .curve(d3.curveMonotoneX);
+
+      g.append('path')
+        .datum(correlations)
+        .attr('fill', 'none')
+        .attr('stroke', '#2563eb')
+        .attr('stroke-width', 2)
+        .attr('d', line);
+
+      // Brush
+      const brush = d3.brushX()
+        .extent([[0, 0], [width, height]])
+        .on('end', brushed);
+
+      const brushG = g.append('g')
+        .attr('class', 'brush')
+        .call(brush);
+
+      function brushed(event) {
+        if (!event.selection) {
+          statsDiv.text('');
+          return;
+        }
+
+        const x0 = event.selection[0];
+        const x1 = event.selection[1];
+        const lag0 = Math.round(xScale.invert(x0));
+        const lag1 = Math.round(xScale.invert(x1));
+
+        const selected = correlations.filter(function(d) {
+          return d.lag >= lag0 && d.lag <= lag1;
+        });
+
+        if (selected.length > 0) {
+          const avgR = d3.mean(selected.map(function(d) { return d.r; }));
+          statsDiv.html('<strong>Selected range:</strong> lags ' + lag0 + ' to ' + lag1 + ' weeks | <strong>Average r:</strong> ' + avgR.toFixed(3));
+        }
+      }
+
+      // Peak marker
+      g.append('line')
+        .attr('x1', xScale(peak.lag))
+        .attr('x2', xScale(peak.lag))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#dc2626')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5');
+
+      g.append('circle')
+        .attr('cx', xScale(peak.lag))
+        .attr('cy', yScale(peak.r))
+        .attr('r', 5)
+        .attr('fill', '#dc2626');
+
+      g.append('text')
+        .attr('x', xScale(peak.lag))
+        .attr('y', -5)
+        .style('text-anchor', 'middle')
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .style('fill', '#dc2626')
+        .text('Peak: lag=' + peak.lag + ', r=' + peak.r.toFixed(3));
+
+      // Interactive points
+      g.selectAll('.correlation-point')
+        .data(correlations)
+        .enter()
+        .append('circle')
+        .attr('class', 'correlation-point')
+        .attr('cx', function(d) { return xScale(d.lag); })
+        .attr('cy', function(d) { return yScale(d.r); })
+        .attr('r', 3)
+        .attr('fill', '#2563eb')
+        .attr('opacity', 0.6)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+          d3.select(this)
+            .attr('r', 6)
+            .attr('opacity', 1);
+
+          tooltip
+            .style('opacity', 1)
+            .html(
+              '<div style="margin-bottom: 4px;"><strong>Lag:</strong> ' + d.lag + ' weeks</div>' +
+              '<div style="margin-bottom: 4px;"><strong>r:</strong> ' + d.r.toFixed(4) + '</div>' +
+              '<div style="font-size: 11px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 4px; margin-top: 4px;">' +
+              getInterpretation(d.lag, d.r) +
+              '</div>'
+            )
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 10) + 'px');
+        })
+        .on('mouseout', function() {
+          d3.select(this)
+            .attr('r', 3)
+            .attr('opacity', 0.6);
+
+          tooltip.style('opacity', 0);
+        });
+    }
+
+  })();
+</script>

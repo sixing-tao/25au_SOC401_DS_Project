@@ -1109,22 +1109,23 @@
           </div>
         </div>
 
-        <!-- 3.2 Tech vs Policy Attention Trends -->
+        <!-- 3.2 Tech vs Governance Attention Trends -->
         <div class="chart-section">
           <div class="chart-card">
             <div class="chart-header">
-              <h3 class="chart-title">3.2 Tech vs Policy Attention Trends</h3>
+              <h3 class="chart-title">
+                3.2 Tech vs Governance Attention Trends
+              </h3>
               <p class="chart-caption">
-                This chart compares public attention to AI technologies versus
-                policy/governance topics over time. The
-                <span style="color: #60a5fa">blue line</span> represents
-                technology attention (Google Trends data for terms like
-                "ChatGPT," "GPT," "AI model," "Claude," "Gemini"). The
-                <span style="color: #f472b6"> pink line</span> represents policy
-                attention (terms like "AI regulation," "AI safety," "AI ethics,"
-                "AI privacy," "AI bias"). Both series are normalized indices
-                (0–100) so only relative trends and timing matter, not absolute
-                values.
+                Unlike the timeline view, which highlights relative trends and
+                temporal patterns, this comparison makes differences in
+                magnitude explicit. While public attention to AI as a general
+                technology rises sharply and remains elevated, attention to AI
+                safety remains consistently negligible by comparison, never
+                approaching the scale of overall AI-related interest. Across the
+                entire period, search activity related to AI safety accounts for
+                only a tiny fraction of total AI attention, remaining orders of
+                magnitude lower than interest in AI itself.
               </p>
             </div>
             <script
@@ -1149,46 +1150,50 @@
                 }
               );
             </script>
-            <!-- Placeholder for Tech vs Policy Chart -->
-            <div
-              id="chart-attention"
-              class="chart-container"
-              style="
-                min-height: 400px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(26, 77, 62, 0.05);
-                border-radius: 8px;
-                margin: 1rem 0;
-                border: 1px dashed var(--color-border);
-              "
-            >
-              <p style="color: var(--color-text-muted); font-style: italic">
-                [Tech vs Policy Attention Trends — D3/Observable chart will be
-                mounted here]
-              </p>
-            </div>
+            <p class="chart-caption">
+              This dual-chart visualization analyzes the temporal relationship
+              between technology and governance attention using the same
+              underlying data: weekly Google Trends search volumes for
+              technology terms (ChatGPT, Claude, Gemini, AI, DeepSeek) and
+              governance terms (AI safety, AI privacy, AI ethics, AI bias, AI
+              trust). The upper chart displays standardized trend indices over
+              time, where each keyword is first z-scored within its own time
+              series to remove scaling differences, then averaged to create
+              composite TechIndex (blue) and GovIndex (orange) measures. This
+              normalization reveals patterns of co-movement rather than absolute
+              magnitude. Hover over the lines to see exact index values and
+              dates; toggle the 4-week rolling mean to smooth short-term
+              fluctuations. The lower chart computes lagged Pearson correlations
+              across different time offsets: positive lags indicate governance
+              attention lagging behind technology attention, while negative lags
+              indicate the reverse. The peak correlation (marked with a red
+              line) identifies the optimal time lag that maximizes alignment
+              between the two series. Use the max lag slider to adjust the
+              analysis window; drag to select a lag range and view the average
+              correlation within that interval.
+            </p>
+
+            <!-- Lagged Cross-Correlation Chart -->
+            {% include LagCorrelationChart.html %}
 
             <!-- Takeaway -->
             <div class="chart-takeaway">
               <h4>📊 Key Takeaway</h4>
               <p>
-                <strong
-                  >Policy discourse consistently lags behind technology
-                  discourse.</strong
-                >
-                Tech attention spikes sharply from late 2022 onward, driven by
-                ChatGPT's viral success and subsequent model releases. Policy
-                and governance attention increases too, but later and with less
-                intensity. This lag has significant implications: when policy
-                discourse trails technology by months or years, it becomes
-                difficult to design consent mechanisms, rights protections, and
-                safety safeguards <em>proactively</em>. Instead, governance
-                becomes reactive—responding to scandals, harms, and public
-                outcry after they occur. From a policy perspective, waiting for
-                problems before acting is a risky strategy that leaves the
-                public unprotected during critical periods of rapid deployment.
+                Together, these visualizations show a persistent imbalance
+                between technological and governance attention around AI. While
+                public interest in AI technologies has expanded rapidly and
+                remained high, governance-related attention remains orders of
+                magnitude smaller and largely episodic. Although standardized
+                trend indices reveal a high overall correlation between
+                technology and governance attention, lagged cross-correlation
+                analysis does not identify a stable or consistent delay by which
+                governance attention follows technological developments.
+                Correlation remains relatively flat indicating that governance
+                discourse does not respond to technological change in a regular
+                or predictable temporal pattern. Instead, the observed
+                correlation is primarily driven by shared long-term trends
+                rather than a proportional or timely governance response.
               </p>
             </div>
           </div>
@@ -1202,62 +1207,57 @@
                 3.3 The Attention–Trust–Transparency Disconnect
               </h3>
               <p class="chart-caption">
-                This visualization tracks three normalized variables over time:
-                (1) <strong>Public attention</strong> to AI (search interest and
-                media coverage), (2) <strong>Public trust/comfort</strong> with
-                AI (survey data on Americans' attitudes toward AI in various
-                domains), and (3)
-                <strong>Corporate transparency efforts</strong> (a proxy index
-                based on the count of model cards, safety reports, and
-                transparency disclosures published by major AI companies). All
-                values are normalized for comparison. The key question: as
-                attention and transparency increase, does trust follow?
+                This visualization tracks four data dimensions over time to
+                examine a critical disconnect between attention, transparency,
+                and trust: (1) Public Sentiment — three lines showing the
+                percentage of Americans who are “more concerned” (red), “equally
+                concerned and excited” (orange), or “more excited” (blue) about
+                AI, based on Pew Research surveys from 2021 to 2025; (2) AI
+                Search Interest (gray shaded area) — Google Trends search volume
+                for “AI” as a proxy for public attention; and (3) Industry
+                Transparency Score (green step line) — the average score across
+                major AI companies (OpenAI, Google, Anthropic, Meta, Amazon,
+                Stability AI, AI2 Lab), based on disclosures related to training
+                data, model cards, and safety reports. Transparency data
+                consists of two snapshot assessments (October 2023 and May 2024)
+                and is therefore visualized as step changes rather than a
+                continuous trend, with horizontal segments indicating constant
+                scores between assessments and vertical jumps representing
+                measured updates. Hover interactions allow inspection of exact
+                sentiment values and company-level transparency breakdowns at
+                the two snapshot dates. The key question this visualization
+                raises is whether rising public attention and increasing
+                industry transparency are accompanied by declining concern and
+                growing excitement; in this analysis, public trust is
+                operationalized using expressed concern as an inverse proxy,
+                reflecting heightened perceived risk and diminished trust in
+                emerging AI technologies.
               </p>
             </div>
 
-            <!-- Placeholder for Trust Chart -->
-            <div
-              id="chart-trust"
-              class="chart-container"
-              style="
-                min-height: 400px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(26, 77, 62, 0.05);
-                border-radius: 8px;
-                margin: 1rem 0;
-                border: 1px dashed var(--color-border);
-              "
-            >
-              <p style="color: var(--color-text-muted); font-style: italic">
-                [Attention–Trust–Transparency Chart — D3/Observable chart will
-                be mounted here]
-              </p>
-            </div>
+            <!-- Attention-Trust-Transparency Chart -->
+            {% include AttentionTrustChart.html %}
 
             <!-- Takeaway -->
             <div class="chart-takeaway">
               <h4>📊 Key Takeaway</h4>
               <p>
-                The data reveals a critical disconnect:
-                <strong
-                  >"more transparency" in its current, company-controlled form
-                  does NOT automatically produce more trust.</strong
-                >
-                Attention increases sharply after 2022. Corporate transparency
-                efforts also rise—companies have published more model cards,
-                more documentation, more safety reports than ever before. Yet
-                public trust and comfort with AI remain flat or trend
-                <em>downward</em>. This suggests that information overload,
-                technical language, and conflicts of interest may limit the
-                effectiveness of voluntary transparency. When companies control
-                what information is disclosed, how it's framed, and whether it
-                can be independently verified, the public may reasonably remain
-                skeptical. This is where institutional, legally backed
-                transparency frameworks become relevant: not transparency as
-                corporate PR, but transparency as accountable disclosure with
-                independent oversight.
+                Across this period, attention to AI technologies and industry
+                transparency efforts both rise substantially, yet public
+                sentiment does not follow a corresponding trajectory toward
+                reduced concern or increased excitement. The share of Americans
+                expressing concern remains elevated and stable over time, while
+                the share expressing excitement declines and stays low. The
+                proportion holding mixed views also decreases, suggesting a
+                gradual polarization of sentiment, predominantly toward concern.
+                This pattern reveals a disconnect between the expansion of
+                voluntary corporate disclosure and actual shifts in public
+                trust. Rather than building confidence, increased transparency
+                in its current, company-controlled form appears insufficient to
+                address the underlying drivers of public unease. The observed
+                dynamics suggest that transparency alone, without independent
+                verification or institutional accountability, may not translate
+                into meaningful trust.
               </p>
             </div>
           </div>

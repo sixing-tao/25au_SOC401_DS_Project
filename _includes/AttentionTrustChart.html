@@ -1,0 +1,612 @@
+<!-- Attention-Trust-Transparency Disconnect Chart -->
+<div id="attention-trust-container" style="width: 100%; margin: 2rem 0">
+  <!-- Chart will be rendered here -->
+</div>
+
+<style>
+  #attention-trust-container .area-attention {
+    fill: #94a3b8;
+    fill-opacity: 0.2;
+  }
+  #attention-trust-container .line-transparency-horizontal {
+    fill: none;
+    stroke: #10b981;
+    stroke-width: 2.5;
+    stroke-dasharray: 6, 4;
+  }
+  #attention-trust-container .line-transparency-vertical {
+    fill: none;
+    stroke: #10b981;
+    stroke-width: 2.5;
+    stroke-dasharray: 6, 4;
+  }
+  #attention-trust-container .line-concern {
+    fill: none;
+    stroke: #ef4444;
+    stroke-width: 3;
+    opacity: 0.7;
+  }
+  #attention-trust-container .line-excited {
+    fill: none;
+    stroke: #3b82f6;
+    stroke-width: 3;
+    opacity: 0.7;
+  }
+  #attention-trust-container .line-mixed {
+    fill: none;
+    stroke: #f59e0b;
+    stroke-width: 3;
+    opacity: 0.7;
+  }
+  #attention-trust-container .dot-transparency {
+    fill: #10b981;
+    stroke: white;
+    stroke-width: 2;
+  }
+  #attention-trust-container .dot-concern {
+    fill: #ef4444;
+    stroke: white;
+    stroke-width: 2;
+  }
+  #attention-trust-container .dot-excited {
+    fill: #3b82f6;
+    stroke: white;
+    stroke-width: 2;
+  }
+  #attention-trust-container .dot-mixed {
+    fill: #f59e0b;
+    stroke: white;
+    stroke-width: 2;
+  }
+</style>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+  (function () {
+    // Chart configuration
+    const margin = { top: 40, right: 70, left: 70, bottom: 60 };
+    const width = 900 - margin.left - margin.right;
+    const height = 450 - margin.top - margin.bottom;
+
+    const container = d3.select("#attention-trust-container");
+
+    const chartContainer = container
+      .append("div")
+      .style("background", "white")
+      .style("border-radius", "8px")
+      .style("padding", "20px")
+      .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)");
+
+    chartContainer
+      .append("h3")
+      .style("margin", "0 0 5px 0")
+      .style("font-size", "16px")
+      .style("font-weight", "600")
+      .style("color", "#333")
+      .text("The Attention–Trust–Transparency Disconnect");
+
+    chartContainer
+      .append("p")
+      .style("font-size", "13px")
+      .style("color", "#666")
+      .style("margin-bottom", "20px")
+      .text(
+        "While AI attention explodes and industry transparency rises, public concern remains persistently high while excitement about AI declines, indicating diminished trust."
+      );
+
+    const svg = chartContainer
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom);
+
+    const g = svg
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    const tooltip = container
+      .append("div")
+      .style("position", "absolute")
+      .style("background", "rgba(0, 0, 0, 0.9)")
+      .style("color", "white")
+      .style("padding", "12px 16px")
+      .style("border-radius", "6px")
+      .style("font-size", "12px")
+      .style("pointer-events", "none")
+      .style("opacity", 0)
+      .style("z-index", 1000)
+      .style("max-width", "320px")
+      .style("line-height", "1.6");
+
+    // Parse CSV data inline
+    const sentimentData = [
+      { date: new Date("2021-11-04"), concern: 37, excited: 18, mixed: 45 },
+      { date: new Date("2022-12-15"), concern: 38, excited: 15, mixed: 46 },
+      { date: new Date("2023-08-03"), concern: 52, excited: 10, mixed: 36 },
+      { date: new Date("2024-08-15"), concern: 51, excited: 11, mixed: 38 },
+      { date: new Date("2025-06-12"), concern: 50, excited: 10, mixed: 38 },
+    ];
+
+    const transparencyRaw = [
+      { company: "AI2 Lab", score2023: 25, score2024: 75 },
+      { company: "Meta", score2023: 54, score2024: 60 },
+      { company: "Stability AI", score2023: 47, score2024: 58 },
+      { company: "Anthropic", score2023: 36, score2024: 51 },
+      { company: "OpenAI", score2023: 48, score2024: 49 },
+      { company: "Google", score2023: 40, score2024: 47 },
+      { company: "Amazon", score2023: 12, score2024: 41 },
+    ];
+
+    // Calculate average transparency scores
+    const avg2023 = d3.mean(
+      transparencyRaw.map(function (d) {
+        return d.score2023;
+      })
+    );
+    const avg2024 = d3.mean(
+      transparencyRaw.map(function (d) {
+        return d.score2024;
+      })
+    );
+
+    const transparencyData = [
+      {
+        date: new Date("2023-10-01"),
+        score: avg2023,
+        companies: transparencyRaw.map(function (d) {
+          return { name: d.company, score: d.score2023 };
+        }),
+      },
+      {
+        date: new Date("2024-05-01"),
+        score: avg2024,
+        companies: transparencyRaw.map(function (d) {
+          return { name: d.company, score: d.score2024 };
+        }),
+      },
+    ];
+
+    // Attention data (truncated for performance)
+    const attentionData = [
+      { date: new Date("2021-10-03"), ai: 3 },
+      { date: new Date("2021-12-05"), ai: 4 },
+      { date: new Date("2022-06-05"), ai: 5 },
+      { date: new Date("2022-11-27"), ai: 10 },
+      { date: new Date("2022-12-04"), ai: 19 },
+      { date: new Date("2023-01-01"), ai: 9 },
+      { date: new Date("2023-04-16"), ai: 36 },
+      { date: new Date("2023-10-01"), ai: 27 },
+      { date: new Date("2024-01-21"), ai: 33 },
+      { date: new Date("2024-05-12"), ai: 36 },
+      { date: new Date("2024-09-15"), ai: 40 },
+      { date: new Date("2024-12-08"), ai: 53 },
+      { date: new Date("2025-03-30"), ai: 58 },
+      { date: new Date("2025-06-29"), ai: 100 },
+      { date: new Date("2025-09-28"), ai: 84 },
+    ];
+
+    // Scales
+    const xScale = d3
+      .scaleTime()
+      .domain([new Date("2021-10-01"), new Date("2025-10-01")])
+      .range([0, width]);
+
+    const yScaleLeft = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+    const yScaleRight = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+    // Axes
+    const xAxis = d3
+      .axisBottom(xScale)
+      .ticks(8)
+      .tickFormat(d3.timeFormat("%Y"));
+
+    const yAxisLeft = d3
+      .axisLeft(yScaleLeft)
+      .ticks(6)
+      .tickFormat(function (d) {
+        return d + "%";
+      });
+
+    const yAxisRight = d3.axisRight(yScaleRight).ticks(6);
+
+    g.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+      .style("font-size", "11px");
+
+    g.append("g").call(yAxisLeft).style("font-size", "11px");
+
+    g.append("g")
+      .attr("transform", "translate(" + width + ",0)")
+      .call(yAxisRight)
+      .style("font-size", "11px");
+
+    // Axis labels
+    g.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -50)
+      .style("text-anchor", "middle")
+      .style("font-size", "12px")
+      .style("fill", "#666")
+      .text("Concern % / Search Interest");
+
+    g.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", width + 60)
+      .style("text-anchor", "middle")
+      .style("font-size", "12px")
+      .style("fill", "#666")
+      .text("Transparency Score (Avg)");
+
+    // Layer 1: Attention area (background)
+    const areaAttention = d3
+      .area()
+      .x(function (d) {
+        return xScale(d.date);
+      })
+      .y0(height)
+      .y1(function (d) {
+        return yScaleLeft(d.ai);
+      })
+      .curve(d3.curveMonotoneX);
+
+    g.append("path")
+      .datum(attentionData)
+      .attr("class", "area-attention")
+      .attr("d", areaAttention);
+
+    // Layer 2: Transparency step lines (snapshot data points only)
+    // First horizontal line: from start to first data point
+    const firstDate = transparencyData[0].date;
+    const firstScore = transparencyData[0].score;
+    const secondDate = transparencyData[1].date;
+    const secondScore = transparencyData[1].score;
+
+    // Horizontal line 1: extend first value from chart start to second data point
+    g.append("line")
+      .attr("class", "line-transparency-horizontal")
+      .attr("x1", 0)
+      .attr("x2", xScale(secondDate))
+      .attr("y1", yScaleRight(firstScore))
+      .attr("y2", yScaleRight(firstScore));
+
+    // Vertical line: jump from first score to second score at second date
+    g.append("line")
+      .attr("class", "line-transparency-vertical")
+      .attr("x1", xScale(secondDate))
+      .attr("x2", xScale(secondDate))
+      .attr("y1", yScaleRight(firstScore))
+      .attr("y2", yScaleRight(secondScore));
+
+    // Horizontal line 2: extend second value to chart end
+    g.append("line")
+      .attr("class", "line-transparency-horizontal")
+      .attr("x1", xScale(secondDate))
+      .attr("x2", width)
+      .attr("y1", yScaleRight(secondScore))
+      .attr("y2", yScaleRight(secondScore));
+
+    g.selectAll(".dot-transparency")
+      .data(transparencyData)
+      .enter()
+      .append("circle")
+      .attr("class", "dot-transparency")
+      .attr("cx", function (d) {
+        return xScale(d.date);
+      })
+      .attr("cy", function (d) {
+        return yScaleRight(d.score);
+      })
+      .attr("r", 6);
+
+    // Layer 3: Sentiment lines
+    // 3a: Mixed feelings line (dashed)
+    const lineMixed = d3
+      .line()
+      .x(function (d) {
+        return xScale(d.date);
+      })
+      .y(function (d) {
+        return yScaleLeft(d.mixed);
+      })
+      .curve(d3.curveMonotoneX);
+
+    g.append("path")
+      .datum(sentimentData)
+      .attr("class", "line-mixed")
+      .attr("d", lineMixed);
+
+    g.selectAll(".dot-mixed")
+      .data(sentimentData)
+      .enter()
+      .append("circle")
+      .attr("class", "dot-mixed")
+      .attr("cx", function (d) {
+        return xScale(d.date);
+      })
+      .attr("cy", function (d) {
+        return yScaleLeft(d.mixed);
+      })
+      .attr("r", 4);
+
+    // 3b: Excited line
+    const lineExcited = d3
+      .line()
+      .x(function (d) {
+        return xScale(d.date);
+      })
+      .y(function (d) {
+        return yScaleLeft(d.excited);
+      })
+      .curve(d3.curveMonotoneX);
+
+    g.append("path")
+      .datum(sentimentData)
+      .attr("class", "line-excited")
+      .attr("d", lineExcited);
+
+    g.selectAll(".dot-excited")
+      .data(sentimentData)
+      .enter()
+      .append("circle")
+      .attr("class", "dot-excited")
+      .attr("cx", function (d) {
+        return xScale(d.date);
+      })
+      .attr("cy", function (d) {
+        return yScaleLeft(d.excited);
+      })
+      .attr("r", 4);
+
+    // 3c: Concern line (most prominent)
+    const lineConcern = d3
+      .line()
+      .x(function (d) {
+        return xScale(d.date);
+      })
+      .y(function (d) {
+        return yScaleLeft(d.concern);
+      })
+      .curve(d3.curveMonotoneX);
+
+    g.append("path")
+      .datum(sentimentData)
+      .attr("class", "line-concern")
+      .attr("d", lineConcern);
+
+    g.selectAll(".dot-concern")
+      .data(sentimentData)
+      .enter()
+      .append("circle")
+      .attr("class", "dot-concern")
+      .attr("cx", function (d) {
+        return xScale(d.date);
+      })
+      .attr("cy", function (d) {
+        return yScaleLeft(d.concern);
+      })
+      .attr("r", 5);
+
+    // Legend
+    const legend = g.append("g").attr("transform", "translate(20,10)");
+
+    const legendData = [
+      {
+        label: "More Concerned",
+        color: "#ef4444",
+        type: "solid",
+        width: 3,
+        opacity: 0.7,
+      },
+      {
+        label: "Equally Concerned/Excited",
+        color: "#f59e0b",
+        type: "solid",
+        width: 3,
+        opacity: 0.7,
+      },
+      {
+        label: "More Excited",
+        color: "#3b82f6",
+        type: "solid",
+        width: 3,
+        opacity: 0.7,
+      },
+      {
+        label: "AI Search Interest",
+        color: "#94a3b8",
+        type: "area",
+        width: 0,
+        opacity: 1,
+      },
+      {
+        label: "Transparency Score",
+        color: "#10b981",
+        type: "step-dashed",
+        width: 2.5,
+        opacity: 1,
+      },
+    ];
+
+    legendData.forEach(function (item, i) {
+      const legendRow = legend
+        .append("g")
+        .attr("transform", "translate(0," + i * 18 + ")");
+
+      if (item.type === "solid") {
+        legendRow
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", 25)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke", item.color)
+          .attr("stroke-width", item.width)
+          .attr("opacity", item.opacity);
+      } else if (item.type === "dashed") {
+        legendRow
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", 25)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke", item.color)
+          .attr("stroke-width", item.width)
+          .attr("stroke-dasharray", "4,3")
+          .attr("opacity", item.opacity);
+      } else if (item.type === "step-dashed") {
+        legendRow
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", 25)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke", item.color)
+          .attr("stroke-width", item.width)
+          .attr("stroke-dasharray", "6,4")
+          .attr("opacity", item.opacity);
+      } else {
+        legendRow
+          .append("rect")
+          .attr("width", 25)
+          .attr("height", 8)
+          .attr("y", -4)
+          .attr("fill", item.color)
+          .attr("opacity", 0.3);
+      }
+
+      legendRow
+        .append("text")
+        .attr("x", 30)
+        .attr("y", 4)
+        .style("font-size", "10px")
+        .style("fill", "#333")
+        .text(item.label);
+    });
+
+    // Interactive hover
+    const bisectDate = d3.bisector(function (d) {
+      return d.date;
+    }).left;
+
+    const focus = g.append("g").style("display", "none");
+
+    focus
+      .append("line")
+      .attr("class", "hover-line")
+      .attr("stroke", "#999")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4,4")
+      .attr("y1", 0)
+      .attr("y2", height);
+
+    const overlay = g
+      .append("rect")
+      .attr("class", "overlay")
+      .attr("fill", "none")
+      .attr("pointer-events", "all")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function () {
+        focus.style("display", null);
+      })
+      .on("mouseout", function () {
+        focus.style("display", "none");
+        tooltip.style("opacity", 0);
+      })
+      .on("mousemove", function (event) {
+        const x0 = xScale.invert(d3.pointer(event, this)[0]);
+
+        // Find nearest data points
+        const iAttention = bisectDate(attentionData, x0, 1);
+        const dAttention =
+          attentionData[iAttention] || attentionData[attentionData.length - 1];
+
+        const iConcern = bisectDate(sentimentData, x0, 1);
+        const d0Concern = sentimentData[iConcern - 1];
+        const d1Concern = sentimentData[iConcern];
+        const dConcern =
+          d1Concern && x0 - d0Concern.date > d1Concern.date - x0
+            ? d1Concern
+            : d0Concern;
+
+        // Check if near transparency data point
+        const nearTransparency = transparencyData.find(function (d) {
+          return Math.abs(xScale(d.date) - xScale(x0)) < 30;
+        });
+
+        focus
+          .select(".hover-line")
+          .attr("x1", xScale(x0))
+          .attr("x2", xScale(x0));
+
+        const formatDate = d3.timeFormat("%b %Y");
+        let html =
+          '<div style="margin-bottom: 6px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 4px;">' +
+          formatDate(x0) +
+          "</div>";
+
+        if (dConcern) {
+          html +=
+            '<div style="font-size: 11px; margin-bottom: 2px;"><strong>Public Sentiment:</strong></div>';
+          html +=
+            '<div style="color: #fca5a5; font-size: 11px; padding-left: 8px;">😟 More Concerned: <strong>' +
+            dConcern.concern +
+            "%</strong></div>";
+          html +=
+            '<div style="color: #fcd34d; font-size: 11px; padding-left: 8px;">😐 Equally Both: <strong>' +
+            dConcern.mixed +
+            "%</strong></div>";
+          html +=
+            '<div style="color: #93c5fd; font-size: 11px; padding-left: 8px; margin-bottom: 6px;">😊 More Excited: <strong>' +
+            dConcern.excited +
+            "%</strong></div>";
+        }
+
+        if (dAttention) {
+          html +=
+            '<div style="color: #cbd5e1;">🔍 AI Search Interest: <strong>' +
+            dAttention.ai +
+            "</strong></div>";
+        }
+
+        if (nearTransparency) {
+          html +=
+            '<div style="color: #86efac;">📊 Transparency Avg: <strong>' +
+            nearTransparency.score.toFixed(1) +
+            "</strong></div>";
+          html +=
+            '<div style="font-size: 10px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.2); color: #e2e8f0;">';
+          html +=
+            "<strong>Company Scores (" +
+            formatDate(nearTransparency.date) +
+            "):</strong><br/>";
+          nearTransparency.companies.forEach(function (c) {
+            html += c.name + ": " + c.score + "<br/>";
+          });
+          html += "</div>";
+        }
+
+        tooltip
+          .style("opacity", 1)
+          .html(html)
+          .style("left", event.pageX + 15 + "px")
+          .style("top", event.pageY - 15 + "px");
+      });
+
+    // Add source label in bottom right corner
+    svg
+      .append("text")
+      .attr("x", width + margin.left + margin.right - 10)
+      .attr("y", height + margin.top + margin.bottom - 10)
+      .attr("text-anchor", "end")
+      .style("fill", "#666")
+      .style("font-size", "11px")
+      .style("font-family", "sans-serif")
+      .text(
+        "Source: Google Trends, Pew Research Center, Stanford University's Center for Research on Foundation Models"
+      );
+  })();
+</script>
